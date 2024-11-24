@@ -1,19 +1,38 @@
-# Create an HTML file for the word game
-html_content = """
+
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Word Chain Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* Add dark mode variables */
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: white;
+            --border-color: #d3d6da;
+            --shadow-color: rgba(0,0,0,0.1);
+            --text-color: #4a90e2;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --container-bg: #2d2d2d;
+            --border-color: #404040;
+            --shadow-color: rgba(0,0,0,0.3);
+            --text-color: #e0e0e0;
+        }
+
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f2f5;
+            background-color: var(--bg-color);
             font-family: 'Poppins', sans-serif;
+            padding: 16px;
+            transition: background-color 0.3s ease;
         }
         .selected {
             border-color: #ff6b6b !important;
@@ -72,19 +91,34 @@ html_content = """
             position: relative;
             width: 60px;
             height: 60px;
-            border: 2px solid #d3d6da;
+            border: 2px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 32px;
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
+            background: var(--container-bg);
             background: linear-gradient(45deg, #4a90e2, #ff6b6b);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             transition: all 0.3s ease;
             cursor: pointer;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --container-bg: #2d2d2d;
+            --border-color: #404040;
+            --shadow-color: rgba(0,0,0,0.3);
+            --text-color: #e0e0e0;
+        }
+
+        /* Update letter-box for dark mode */
+        [data-theme="dark"] .letter-box {
+            background: var(--container-bg);
+            color: var(--text-color);
         }
 
         .letter-box:hover {
@@ -136,21 +170,21 @@ html_content = """
             opacity: 0.8;
             pointer-events: none;
             z-index: 2; 
-            background: white;
+            background: var(--container-bg);
             width: 20px;
             height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 5px var(--shadow-color);
         }
 
         .context-menu {
             position: absolute;
-            background: white;
+            background: var(--container-bg);
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px var(--shadow-color);
             padding: 8px 0;
             z-index: 1000;
             animation: fadeIn 0.2s ease;
@@ -159,7 +193,7 @@ html_content = """
         .context-menu-item {
             padding: 8px 16px;
             cursor: pointer;
-            color: #4a4a4a;
+            color: var(--text-color);
             font-family: 'Poppins', sans-serif;
             font-size: 14px;
             transition: all 0.2s ease;
@@ -182,10 +216,10 @@ html_content = """
             position: relative;
             margin: 0 auto 20px;
             width: fit-content;
-            background: white;
+            background: var(--container-bg);
             padding: 10px 15px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px var(--shadow-color);
             font-family: 'Poppins', sans-serif;
             font-size: 14px;
             cursor: pointer;
@@ -194,6 +228,7 @@ html_content = """
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            font-weight: 500;
         }
 
         .possibilities-counter .common-words {
@@ -210,10 +245,126 @@ html_content = """
             padding-top: 8px;
             border-top: 1px solid rgba(74, 144, 226, 0.2);
         }
+
+        .mobile-input {
+            position: fixed;
+            opacity: 0;
+            pointer-events: none;
+            top: -100px;
+            left: -100px;
+        }
+
+        @media (pointer: fine) {
+            .mobile-input {
+                display: none;
+            }
+        }
+
+        /* Add responsive container styling */
+        .game-container {
+            background-color: var(--container-bg);
+            padding: 20px;
+            width: 100%;          /* Take full width on mobile */
+            max-width: 600px;     /* Limit width on desktop */
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            position: relative;
+            margin-bottom: 60px;  /* Space for keyboard */
+            transition: background-color 0.3s ease;
+        }
+
+        /* Adjust title size for mobile */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 36px !important;  /* Smaller title on mobile */
+            }
+
+            .letter-box {
+                width: 45px;      /* Smaller boxes on mobile */
+                height: 45px;
+                font-size: 24px;
+            }
+
+            .insertion-point {
+                height: 30px;     /* Adjust insertion point size */
+            }
+
+            /* Adjust container padding */
+            .game-container {
+                padding: 15px;
+                margin-bottom: 200px;  /* More space for keyboard */
+            }
+
+            /* Make the word container wrap if needed */
+            #word-container {
+                flex-wrap: wrap;
+                gap: 8px !important;
+            }
+
+            /* Adjust possibilities counter */
+            .possibilities-counter {
+                width: 90%;       /* Wider on mobile */
+                font-size: 16px;
+            }
+        }
+
+        /* Prevent page zoom on input focus for iOS */
+        @media screen and (-webkit-min-device-pixel-ratio:0) { 
+            select,
+            textarea,
+            input {
+                font-size: 16px;
+            }
+        }
+
+        /* Add viewport-relative units for better scaling */
+        @media (max-width: 480px) {
+            body {
+                align-items: flex-start;  /* Align to top on mobile */
+                padding-top: 5vh;         /* Add some top spacing */
+            }
+
+            #word-container {
+                margin: 3vh 0;
+            }
+        }
+
+        /* Dark mode toggle styles */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--container-bg);
+            box-shadow: 0 2px 10px var(--shadow-color);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 480px) {
+            .theme-toggle {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div style="background-color: white; padding: 20px; min-width: 370px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative;">
+    <div class="game-container">
         <h1 style="
             font-family: 'Monoton', cursive !important;
             font-size: 48px;
@@ -321,6 +472,14 @@ html_content = """
             </span>
         </div>
     </div>
+
+    <input type="text" 
+           class="mobile-input" 
+           id="mobile-keyboard-trigger"
+           autocomplete="off"
+           inputmode="text">
+
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">☀️</button>
 
     <script>
         let selectedBox = null;
@@ -734,13 +893,121 @@ html_content = """
                 });
             }
         }
+
+        function initializeMobileKeyboard() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+                const input = document.getElementById('mobile-keyboard-trigger');
+                
+                // Focus the input when the game starts
+                input.focus();
+
+                // Refocus input when clicking anywhere in the game
+                document.addEventListener('click', () => {
+                    input.focus();
+                });
+
+                // Handle input changes
+                input.addEventListener('input', async (e) => {
+                    const letter = e.target.value.slice(-1).toUpperCase();
+                    if (letter.match(/^[A-Z]$/)) {
+                        if (selectedInsertionIndex !== null) {
+                            await addLetter(selectedInsertionIndex, letter);
+                            selectedInsertionIndex = null;
+                            document.querySelectorAll('.insertion-point').forEach(p => {
+                                p.classList.remove('selected');
+                            });
+                        } else if (selectedBox) {
+                            const index = Array.from(document.querySelectorAll('.letter-box')).indexOf(selectedBox);
+                            await updateLetter(index, letter);
+                            selectedBox = null;
+                        }
+                    }
+                    // Clear the input after processing
+                    e.target.value = '';
+                });
+
+                // Handle backspace
+                input.addEventListener('keydown', async (e) => {
+                    if (e.key === 'Backspace') {
+                        if (selectedBox) {
+                            const index = Array.from(document.querySelectorAll('.letter-box')).indexOf(selectedBox);
+                            await dropLetter(index);
+                            selectedBox = null;
+                        }
+                    }
+                });
+            }
+        }
+
+        // Call this after your game is initialized
+        initializeMobileKeyboard();
+
+        function initializeThemeToggle() {
+            const toggle = document.getElementById('theme-toggle');
+            const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Check for saved theme preference or use system preference
+            const currentTheme = localStorage.getItem('theme') || 
+                (prefersDarkScheme.matches ? 'dark' : 'light');
+            
+            // Initialize theme
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                toggle.textContent = '🌙';
+            }
+
+            // Toggle theme
+            toggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                toggle.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+                
+                // Animate the toggle
+                toggle.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    toggle.style.transform = 'scale(1)';
+                }, 200);
+            });
+        }
+
+        // Call this after your game is initialized
+        initializeThemeToggle();
+
+        // Save state when changes occur
+        function saveGameState() {
+            const gameState = {
+                currentWord: currentWord,
+                chainLength: chainLength,
+                discoveredWords: Array.from(discoveredWords)
+            };
+            sessionStorage.setItem('wordGameState', JSON.stringify(gameState));
+        }
+
+        // Load state when page loads
+        function loadGameState() {
+            const savedState = sessionStorage.getItem('wordGameState');
+            if (savedState) {
+                const gameState = JSON.parse(savedState);
+                currentWord = gameState.currentWord;
+                chainLength = gameState.chainLength;
+                discoveredWords = new Set(gameState.discoveredWords);
+                
+                // Update UI
+                createWordContainer();
+                updateChainLength(0);
+                updatePossibilitiesCounter();
+            }
+        }
+
+        // Add to your initialization code
+        document.addEventListener('DOMContentLoaded', loadGameState);
+
+        // Add to your state-changing functions (addLetter, dropLetter)
+        saveGameState();
     </script>
 </body>
 </html>
-"""
-
-# Write the HTML to a file
-with open('word_game.html', 'w') as f:
-    f.write(html_content)
-
-print("Game created! Open 'word_game.html' in your browser to play.") 
