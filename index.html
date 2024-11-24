@@ -1,4 +1,5 @@
-
+# Create an HTML file for the word game
+html_content = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -195,54 +196,19 @@
             color: transparent;
         }
 
-        .possibilities-counter:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-
-        .tooltip {
-            position: absolute;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            z-index: 1000;
-            max-width: 250px;
+        .possibilities-counter .common-words {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
             opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
         }
 
-        .tooltip.visible {
+        .possibilities-counter.expanded .common-words {
+            max-height: 50px;
             opacity: 1;
-            visibility: visible;
-        }
-
-        .tooltip-content {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .tooltip-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tooltip-label {
-            background: linear-gradient(45deg, #4a90e2, #ff6b6b);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 500;
-        }
-
-        .tooltip-value {
-            font-weight: 600;
-            color: #4a90e2;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(74, 144, 226, 0.2);
         }
     </style>
 </head>
@@ -322,19 +288,8 @@
             font-weight: 500;">Length of the chain: 0</p>
 
         <div id="possibilities-counter" class="possibilities-counter">
-            Possible Words: 0
-        </div>
-        <div id="possibilities-tooltip" class="tooltip">
-            <div class="tooltip-content">
-                <div class="tooltip-row">
-                    <span class="tooltip-label">Total Possible Words:</span>
-                    <span class="tooltip-value" id="total-words">-</span>
-                </div>
-                <div class="tooltip-row">
-                    <span class="tooltip-label">Common Words:</span>
-                    <span class="tooltip-value" id="common-words">-</span>
-                </div>
-            </div>
+            <div class="total-words">Possible Words: 0</div>
+            <div class="common-words">Of which common words: 0</div>
         </div>
 
         <div id="message" style="
@@ -376,7 +331,7 @@
         let discoveredWords = new Set(['HOUSE']);
         let wordPossibilities = null;
 
-        // Load the precomputed words
+        // Load the precomputed words - convert all to uppercase
         fetch('precomputed_words_aggregated.json')
             .then(response => {
                 if (!response.ok) {
@@ -385,7 +340,6 @@
                 return response.json();
             })
             .then(data => {
-                // Convert all dictionary keys to uppercase
                 wordPossibilities = Object.fromEntries(
                     Object.entries(data).map(([key, value]) => [key.toUpperCase(), value])
                 );
@@ -404,37 +358,32 @@
             const possibilities = wordPossibilities[currentWordStr] || { total: 0, common: 0 };
             
             const counter = document.getElementById('possibilities-counter');
-            counter.textContent = `Possible Words: ${possibilities.total || 0}`;
+            const totalWords = counter.querySelector('.total-words');
+            const commonWords = counter.querySelector('.common-words');
             
-            document.getElementById('total-words').textContent = possibilities.total || 0;
-            document.getElementById('common-words').textContent = possibilities.common || 0;
+            totalWords.textContent = `Possible Words: ${possibilities.total || 0}`;
+            commonWords.textContent = `Of which common words: ${possibilities.common || 0}`;
         }
 
-        // Add tooltip functionality
+        // Add expanding functionality
         const counter = document.getElementById('possibilities-counter');
-        const tooltip = document.getElementById('possibilities-tooltip');
-
+        
         counter.addEventListener('mouseenter', () => {
-            const rect = counter.getBoundingClientRect();
-            tooltip.style.top = `${rect.bottom + 10}px`;
-            tooltip.style.right = '20px';
-            tooltip.classList.add('visible');
+            counter.classList.add('expanded');
         });
 
-        counter.addEventListener('mouseleave', (e) => {
-            if (!tooltip.contains(e.relatedTarget)) {
-                tooltip.classList.remove('visible');
-            }
+        counter.addEventListener('mouseleave', () => {
+            counter.classList.remove('expanded');
         });
 
-        tooltip.addEventListener('mouseleave', () => {
-            tooltip.classList.remove('visible');
+        counter.addEventListener('click', () => {
+            counter.classList.toggle('expanded');
         });
 
         // Word validation function
         async function isValidWord(word) {
             try {
-                // Always check API with lowercase, but compare against discovered words in uppercase
+                // API requires lowercase, but we'll work with uppercase everywhere else
                 const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
                 if (!response.ok) return false;
                 
@@ -535,7 +484,6 @@
             const oldWord = [...currentWord];
             const container = document.getElementById('word-container');
             
-            // Always store letters in uppercase
             newLetter = newLetter.toUpperCase();
             
             // Create and insert the new box immediately
@@ -568,7 +516,7 @@
             // Update word and check validity
             currentWord.splice(index, 0, newLetter);
             const word = currentWord.join('');
-            const isValid = await isValidWord(word.toLowerCase());
+            const isValid = await isValidWord(word);
             
             if (isValid && !discoveredWords.has(word)) {
                 updateChainLength(1);
@@ -610,7 +558,7 @@
             const word = currentWord.join('');
             
             if (word.length >= 3) {
-                const isValid = await isValidWord(word.toLowerCase());
+                const isValid = await isValidWord(word);
                 if (isValid && !discoveredWords.has(word)) {
                     setTimeout(() => {
                         box.remove();
@@ -712,7 +660,6 @@
 
             if (!event.key.match(/^[a-zA-Z]$/)) return;
 
-            // Always convert to uppercase immediately
             const newLetter = event.key.toUpperCase();
             
             if (selectedInsertionIndex !== null) {
@@ -727,7 +674,7 @@
                 currentWord[index] = newLetter;
                 
                 const word = currentWord.join('');
-                const isValid = await isValidWord(word.toLowerCase());
+                const isValid = await isValidWord(word);
                 
                 if (isValid && !discoveredWords.has(word)) {
                     updateChainLength(1);
@@ -790,3 +737,10 @@
     </script>
 </body>
 </html>
+"""
+
+# Write the HTML to a file
+with open('word_game.html', 'w') as f:
+    f.write(html_content)
+
+print("Game created! Open 'word_game.html' in your browser to play.") 
