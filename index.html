@@ -176,10 +176,78 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .possibilities-counter {
+            position: relative;
+            margin: 0 auto 20px;
+            width: fit-content;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #4a90e2, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .possibilities-counter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            z-index: 1000;
+            max-width: 250px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tooltip-label {
+            background: linear-gradient(45deg, #4a90e2, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 500;
+        }
+
+        .tooltip-value {
+            font-weight: 600;
+            color: #4a90e2;
+        }
     </style>
 </head>
 <body>
-    <div style="background-color: white; padding: 20px; min-width: 370px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div style="background-color: white; padding: 20px; min-width: 370px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative;">
         <h1 style="
             font-family: 'Monoton', cursive !important;
             font-size: 48px;
@@ -193,13 +261,13 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
             white-space: nowrap;
             margin-bottom: 15px;">Word Game</h1>
-            
+        
         <div style="
             text-align: center;
             font-family: 'Poppins', sans-serif;
             font-size: 16px;
             font-weight: 500;
-            margin-bottom: 30px;
+            margin-bottom: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -246,12 +314,29 @@
 
         <p style="
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 50px;
             background: linear-gradient(45deg, #4a90e2, #ff6b6b);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             font-weight: 500;">Length of the chain: 0</p>
+
+        <div id="possibilities-counter" class="possibilities-counter">
+            Possible Words: 0
+        </div>
+        <div id="possibilities-tooltip" class="tooltip">
+            <div class="tooltip-content">
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Total Possible Words:</span>
+                    <span class="tooltip-value" id="total-words">-</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">Common Words:</span>
+                    <span class="tooltip-value" id="common-words">-</span>
+                </div>
+            </div>
+        </div>
+
         <div id="message" style="
             text-align: center;
             height: 20px;
@@ -289,6 +374,59 @@
         let currentWord = ['H', 'O', 'U', 'S', 'E'];
         let chainLength = 0;
         let discoveredWords = new Set(['HOUSE']);
+        let wordPossibilities = null;
+
+        // Load the precomputed words
+        fetch('precomputed_words_aggregated.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                wordPossibilities = data;
+                updatePossibilitiesCounter();
+            })
+            .catch(error => {
+                console.error('Error loading word possibilities:', error);
+                const counter = document.getElementById('possibilities-counter');
+                counter.textContent = 'Possible Words: Error loading';
+            });
+
+        function updatePossibilitiesCounter() {
+            if (!wordPossibilities) return;
+            
+            const currentWordStr = currentWord.join('');
+            const possibilities = wordPossibilities[currentWordStr] || { total: 0, common: 0 };
+            
+            const counter = document.getElementById('possibilities-counter');
+            counter.textContent = `Possible Words: ${possibilities.total || 0}`;
+            
+            document.getElementById('total-words').textContent = possibilities.total || 0;
+            document.getElementById('common-words').textContent = possibilities.common || 0;
+        }
+
+        // Add tooltip functionality
+        const counter = document.getElementById('possibilities-counter');
+        const tooltip = document.getElementById('possibilities-tooltip');
+
+        counter.addEventListener('mouseenter', () => {
+            const rect = counter.getBoundingClientRect();
+            tooltip.style.top = `${rect.bottom + 10}px`;
+            tooltip.style.right = '20px';
+            tooltip.classList.add('visible');
+        });
+
+        counter.addEventListener('mouseleave', (e) => {
+            if (!tooltip.contains(e.relatedTarget)) {
+                tooltip.classList.remove('visible');
+            }
+        });
+
+        tooltip.addEventListener('mouseleave', () => {
+            tooltip.classList.remove('visible');
+        });
 
         // Word validation function
         async function isValidWord(word) {
@@ -437,6 +575,7 @@
                 discoveredWords.add(word);
                 createWordContainer();
                 celebrateWord();
+                updatePossibilitiesCounter();
                 return true;
             } else {
                 if (isValid) {
@@ -481,6 +620,7 @@
                     updateChainLength(1);
                     discoveredWords.add(word);
                     celebrateWord();
+                    updatePossibilitiesCounter();
                     return true;
                 } else {
                     if (isValid) {
@@ -550,6 +690,8 @@
                 
                 addInsertionPoint(container, index + 1);
             });
+            
+            updatePossibilitiesCounter();
         }
 
         function addInsertionPoint(container, index) {
