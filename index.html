@@ -1,9 +1,14 @@
-
+# Create an HTML file for the word game
+html_content = """
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Word Chain Game</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         /* Add dark mode variables */
@@ -229,6 +234,12 @@
             background-clip: text;
             color: transparent;
             font-weight: 500;
+            text-align: center;
+        }
+
+        .possibilities-counter .total-words,
+        .possibilities-counter .common-words {
+            text-align: center;
         }
 
         .possibilities-counter .common-words {
@@ -1011,3 +1022,10 @@
     </script>
 </body>
 </html>
+"""
+
+# Write the HTML to a file
+with open('word_game.html', 'w') as f:
+    f.write(html_content)
+
+print("Game created! Open 'word_game.html' in your browser to play.") 
