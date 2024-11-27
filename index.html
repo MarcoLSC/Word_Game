@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,17 +26,13 @@
         body {
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
+            overflow: hidden;
             background-color: var(--bg-color);
             font-family: 'Poppins', sans-serif;
-            padding: 16px;
-            transition: background-color 0.3s ease;
-            touch-action: manipulation;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
         }
+
         .selected {
             border-color: #ff6b6b !important;
             box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
@@ -93,13 +88,13 @@
         
         .letter-box {
             position: relative;
-            width: 60px;
-            height: 60px;
+            width: min(45px, 12vw);
+            height: min(45px, 12vw);
             border: 2px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: min(24px, 6vw);
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
             background: var(--container-bg);
@@ -216,7 +211,7 @@
             position: relative;
             margin: 0 auto 20px;
             width: fit-content;
-            background: var(--container-bg);
+            background-color: var(--keyboard-bg);
             padding: 10px 15px;
             border-radius: 8px;
             box-shadow: 0 2px 10px var(--shadow-color);
@@ -254,53 +249,45 @@
 
         /* Add responsive container styling */
         .game-container {
-            background-color: var(--container-bg);
-            padding: 20px;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-            width: 100%;          /* Take full width on mobile */
-            max-width: 600px;     /* Limit width on desktop */
-            border-radius: 10px;
-            box-shadow: 0 2px 10px var(--shadow-color);
             position: relative;
-            margin-bottom: 60px;  /* Space for keyboard */
-            transition: background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+        }
+
+        /* Create a top section for title */
+        .title-section {
+            position: absolute;
+            top: env(safe-area-inset-top, 0);
+            left: 0;
+            right: 0;
+            padding: 10px;
+            text-align: center;
+            background-color: var(--bg-color);
+        }
+
+        /* Create a bottom section for game elements */
+        .game-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
         /* Adjust title size for mobile */
         @media (max-width: 480px) {
             h1 {
-                font-size: 36px !important;  /* Smaller title on mobile */
+                font-size: min(36px, 4vh);
             }
-
-            .letter-box {
-                width: 45px;      /* Smaller boxes on mobile */
-                height: 45px;
-                font-size: 24px;
-            }
-
-            .insertion-point {
-                height: 30px;     /* Adjust insertion point size */
-            }
-
-            /* Adjust container padding */
-            .game-container {
-                padding: 15px;
-                margin-bottom: 200px;  /* More space for keyboard */
-            }
-
-            /* Make the word container wrap if needed */
-            #word-container {
-                flex-wrap: wrap;
-                gap: 8px !important;
-            }
-
-            /* Adjust possibilities counter */
-            .possibilities-counter {
-                width: 90%;       /* Wider on mobile */
-                font-size: 16px;
+            
+            .subtitle-container {
+                font-size: min(14px, 1.8vh);
             }
         }
 
@@ -440,9 +427,8 @@
             right: 0;
             background: var(--container-bg);
             padding: 10px;
-            padding-bottom: calc(env(safe-area-inset-bottom) + 60px); /* Space for buttons */
+            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
             box-shadow: 0 -2px 10px var(--shadow-color);
-            display: none; /* Hidden by default on desktop */
             z-index: 1000;
         }
 
@@ -456,17 +442,43 @@
         .key {
             flex: 1;
             min-width: 30px;
-            height: 52px;
+            height: 45px;
             border: none;
             border-radius: 5px;
             background: var(--bg-color);
             color: var(--text-color);
             font-family: 'Poppins', sans-serif;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
             touch-action: manipulation;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .delete-key {
+            flex: 1.5;
+            font-size: 20px;
+        }
+
+        /* iOS specific adjustments */
+        @supports (-webkit-touch-callout: none) {
+            .key {
+                padding-top: 0;
+                line-height: normal;
+            }
+        }
+
+        /* Android specific adjustments */
+        @supports not (-webkit-touch-callout: none) {
+            .key {
+                padding-bottom: 2px;
+            }
         }
 
         .key:active {
@@ -482,11 +494,6 @@
                 color: white;
                 transform: scale(0.95);
             }
-        }
-
-        .delete-key {
-            flex: 1.5;
-            font-size: 20px;
         }
 
         /* Show keyboard on mobile devices */
@@ -633,8 +640,9 @@
         /* Update the title styles */
         h1 {
             font-family: 'Monoton', cursive !important;
-            font-size: 64px;  /* Increased from 48px */
-            font-weight: 300;
+            font-size: min(48px, 5vh);
+            margin: 0;
+            padding: 0;
             text-align: center;
             background: linear-gradient(45deg, #FF0080, #FF0000, #FF8C00, #FFD700);
             -webkit-background-clip: text;
@@ -643,21 +651,15 @@
             opacity: 0.9;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
             white-space: nowrap;
-            margin-bottom: 5px;  /* Reduced to bring subtitle closer */
+            margin: 0.5rem 0 0.2rem 0; /* Reduce top/bottom margins */
+            padding: 0;
         }
 
         /* Update the subtitle styles */
         .subtitle-container {
+            font-size: min(16px, 2vh);
+            margin: 5px 0 0 0;
             text-align: center;
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            opacity: 0.7;  /* Make more opaque */
         }
 
         .subtitle-text {
@@ -681,6 +683,11 @@
         @media (max-width: 480px) {
             h1 {
                 font-size: 48px !important;  /* Adjust for mobile */
+                margin: 0.3rem 0 0.2rem 0; /* Even tighter spacing on mobile */
+            }
+            
+            .subtitle-container {
+                margin: 0 0 0.4rem 0; /* Slightly tighter on mobile */
             }
         }
 
@@ -737,69 +744,76 @@
                 cursor: pointer;
             }
         }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem; /* Reduce from default size */
+                padding: 0.5rem;   /* Optional: adjust padding if needed */
+            }
+        }
+
+        .game-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #message {
+            text-align: center;
+            min-height: 40px;
+            padding: 10px 0;
+            margin: 20px 0;
+            font-size: 2vh;
+            font-weight: 500;
+            background: linear-gradient(45deg, #4a90e2, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 480px) {
+            #message {
+                min-height: 45px;
+                padding: 15px 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>Word Morph</h1>
-        
-        <div class="subtitle-container">
-            <span class="subtitle-text">Add</span>
-            <span class="subtitle-dot">•</span>
-            <span class="subtitle-text">Edit</span>
-            <span class="subtitle-dot">•</span>
-            <span class="subtitle-text">Drop</span>
+        <div class="title-section">
+            <h1>Word Morph</h1>
+            <div class="subtitle-container">
+                <span class="subtitle-text">Add</span>
+                <span class="subtitle-dot">•</span>
+                <span class="subtitle-text">Edit</span>
+                <span class="subtitle-dot">•</span>
+                <span class="subtitle-text">Drop</span>
+            </div>
         </div>
 
-        <div id="word-container" style="
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;"></div>
+        <div class="game-section">
+            <div id="message"></div>
+            
+            <div id="word-container" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;"></div>
 
-        <p style="
-            text-align: center;
-            margin-bottom: 50px;
-            background: linear-gradient(45deg, #4a90e2, #ff6b6b);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 500;">Length of the chain: 0</p>
+            <p style="text-align: center; margin-bottom: 50px; background: linear-gradient(45deg, #4a90e2, #ff6b6b); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 500;">Length of the chain: 0</p>
 
-        <div id="possibilities-counter" class="possibilities-counter">
-            <div class="total-words">Possible Words: 0</div>
-            <div class="common-words">Of which common words: 0</div>
-        </div>
+            <div id="possibilities-counter" class="possibilities-counter">
+                <div class="total-words">Possible Words: 0</div>
+                <div class="common-words">Of which common words: 0</div>
+            </div>
 
-        <div id="message" style="
-            text-align: center;
-            height: 20px;
-            margin-bottom: 20px;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(45deg, #4a90e2, #ff6b6b);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 500;"></div>
-        
-        <!-- Desktop instructions -->
-        <div class="desktop-instructions" style="
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            line-height: 1.6;">
-            <span style="
-                background: linear-gradient(45deg, #4a90e2, #ff6b6b);
-                -webkit-background-clip: text;
-                background-clip: text;
-                color: transparent;">
-                Add, Edit, or Drop one letter at a time to form a new word.<br>
-                The one who has the longest chain wins!
-            </span>
+            <div class="desktop-instructions" style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-family: 'Poppins', sans-serif; font-size: 14px; line-height: 1.6;">
+                <span style="background: linear-gradient(45deg, #4a90e2, #ff6b6b); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                    Add, Edit, or Drop one letter at a time to form a new word.<br>
+                    The one who has the longest chain wins!
+                </span>
+            </div>
         </div>
     </div>
 
