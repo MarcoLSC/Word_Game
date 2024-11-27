@@ -252,13 +252,11 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             width: 100%;
             max-width: 600px;
             height: 100%;
             padding: 10px;
             box-sizing: border-box;
-            background-color: var(--bg-color);
         }
 
         /* Create a top section for title */
@@ -274,10 +272,13 @@
 
         /* Create a bottom section for game elements */
         .game-section {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            justify-content: center; /* Centers content vertically */
+            margin-top: calc(100px + env(safe-area-inset-top)); /* Adjust based on your title height */
+            margin-bottom: calc(350px + env(safe-area-inset-bottom)); /* Adjust based on keyboard height */
+            gap: 20px;
         }
 
         /* Adjust title size for mobile */
@@ -427,7 +428,7 @@
             right: 0;
             background: var(--container-bg);
             padding: 10px;
-            padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+            margin-bottom: 70px;
             box-shadow: 0 -2px 10px var(--shadow-color);
             z-index: 1000;
         }
@@ -435,20 +436,20 @@
         .keyboard-row {
             display: flex;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
             margin-bottom: 8px;
         }
 
         .key {
             flex: 1;
             min-width: 30px;
-            height: 45px;
+            height: 55px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             background: var(--bg-color);
             color: var(--text-color);
             font-family: 'Poppins', sans-serif;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -463,7 +464,7 @@
 
         .delete-key {
             flex: 1.5;
-            font-size: 20px;
+            font-size: 22px;
         }
 
         /* iOS specific adjustments */
@@ -752,33 +753,65 @@
             }
         }
 
-        .game-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
         #message {
             text-align: center;
             min-height: 40px;
-            padding: 10px 0;
-            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 2vh;
             font-weight: 500;
             background: linear-gradient(45deg, #4a90e2, #ff6b6b);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         @media (max-width: 480px) {
             #message {
                 min-height: 45px;
                 padding: 15px 0;
+            }
+        }
+
+        /* iOS specific adjustments */
+        @supports (-webkit-touch-callout: none) {
+            .custom-keyboard {
+                margin-bottom: calc(70px + env(safe-area-inset-bottom));
+            }
+            
+            .info-button, .theme-toggle {
+                bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Android specific adjustments */
+        @supports not (-webkit-touch-callout: none) {
+            .custom-keyboard {
+                margin-bottom: 70px;
+            }
+            
+            .info-button, .theme-toggle {
+                bottom: 20px;
+            }
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .custom-keyboard {
+                padding-bottom: 10px;
+            }
+            
+            .info-button {
+                left: 20px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .theme-toggle {
+                right: 20px;
+                width: 40px;
+                height: 40px;
             }
         }
     </style>
