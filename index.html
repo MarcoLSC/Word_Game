@@ -169,6 +169,12 @@
             <div>Chain Length: <span id="chain-length">0</span></div>
             <div>Possible Words: <span id="word-possibilities">0</span></div>
         </div>
+
+        <input type="text" 
+               id="mobile-input" 
+               maxlength="1" 
+               autocomplete="off" 
+               style="opacity: 0; position: fixed; width: 1px; height: 1px; pointer-events: none;">
     </div>
 
     <script>
@@ -218,16 +224,17 @@
         }
 
         function handleLetterClick(index) {
-            const newLetter = prompt("Enter a new letter:");
-            if (!newLetter || newLetter.length > 1 || !/[a-zA-Z]/.test(newLetter)) {
-                showMessage("Invalid letter. Try again.", true);
-                return;
-            }
-
-            // Save the current word before updating
-            gameState.previousWord = [...gameState.currentWord];
-            gameState.currentWord[index] = newLetter.toUpperCase();
-            checkWordValidity();
+            const mobileInput = document.getElementById('mobile-input');
+            gameState.selectedIndex = index; // Store selected index
+            
+            // Highlight the selected letter box
+            const letterBoxes = document.querySelectorAll('.letter-box');
+            letterBoxes.forEach(box => box.style.background = 'var(--container-bg)');
+            letterBoxes[index].style.background = 'var(--accent-color)';
+            
+            // Focus the input
+            mobileInput.value = '';
+            mobileInput.focus();
         }
 
         function calculatePossibleWords() {
@@ -286,8 +293,37 @@
             }
         }
 
-        // Initialize Game
-        updateUI();
+        // Add these new event listeners in your initialization code
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileInput = document.getElementById('mobile-input');
+            
+            // Initial focus
+            mobileInput.focus();
+
+            // Handle input changes
+            mobileInput.addEventListener('input', function(e) {
+                const newLetter = e.target.value;
+                if (newLetter && /[a-zA-Z]/.test(newLetter) && gameState.selectedIndex !== undefined) {
+                    gameState.previousWord = [...gameState.currentWord];
+                    gameState.currentWord[gameState.selectedIndex] = newLetter.toUpperCase();
+                    checkWordValidity();
+                    mobileInput.value = ''; // Clear the input
+                }
+            });
+
+            // Keep focus on blur
+            mobileInput.addEventListener('blur', function() {
+                setTimeout(() => mobileInput.focus(), 100);
+            });
+
+            // Handle keyboard hiding on mobile
+            window.addEventListener('resize', function() {
+                setTimeout(() => mobileInput.focus(), 100);
+            });
+
+            // Initialize the game
+            updateUI();
+        });
     </script>
 </body>
 </html>
