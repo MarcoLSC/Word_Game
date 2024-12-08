@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>Word Chain Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --text-color: #e6e6e6;
+            --accent-color: #4d5bf9;
+            --correct-color: #4CAF50;
+            --error-color: #ff4757;
+            --duplicate-color: #ffa502;
+            --container-bg: #242442;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --box-gradient: linear-gradient(145deg, #282850, #1f1f3d);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-color);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent-color), #a3a9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .info-box {
+            background: var(--box-gradient);
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-message {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .info-definition {
+            font-size: 16px;
+            color: #a3a9ff;
+            line-height: 1.4;
+        }
+
+        .game-box {
+            display: flex;
+            justify-content: center;
+            flex-wrap: nowrap;
+            gap: 4px;
+            margin-bottom: 16px;
+            flex: 1;
+            transition: border-color 0.3s ease;
+            padding: 16px;
+            background: var(--box-gradient);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-box.correct {
+            border: 2px solid var(--correct-color);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .game-box.error {
+            border: 2px solid var(--error-color);
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+        }
+
+        .game-box.duplicate {
+            border: 2px solid var(--duplicate-color);
+            box-shadow: 0 0 20px rgba(255, 165, 2, 0.3);
+        }
+
+        .letter-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--container-bg);
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            font-size: 28px;
+            font-weight: 600;
+            border-radius: 12px;
+            height: 64px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            flex: 1 1 auto;
+            max-width: calc((100% - 40px) / 7);
+        }
+
+        .letter-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            background: var(--accent-color);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-color);
+            gap: 16px;
+            padding: 8px;
+        }
+
+        .stats div {
+            background: var(--box-gradient);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+
+        .stats span {
+            color: var(--accent-color);
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Word Morph</h1>
+
+        <!-- Information Box -->
+        <div class="info-box">
+            <div id="message" class="info-message">Start forming words!</div>
+            <div id="definition" class="info-definition"></div>
+        </div>
+
+        <!-- Game Area -->
+        <div id="game-area" class="game-box"></div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div>Chain Length: <span id="chain-length">0</span></div>
+            <div>Possible Words: <span id="word-possibilities">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        const gameState = {
+            currentWord: ["H", "O", "U", "S", "E"],
+            previousWord: ["H", "O", "U", "S", "E"],
+            chainLength: 0,
+            discoveredWords: new Set(["HOUSE"]),
+        };
+
+        // DOM Elements
+        const messageEl = document.getElementById("message");
+        const definitionEl = document.getElementById("definition");
+        const gameArea = document.getElementById("game-area");
+        const chainLengthEl = document.getElementById("chain-length");
+        const wordPossibilitiesEl = document.getElementById("word-possibilities");
+
+        // Dictionary API Base URL
+        const DICTIONARY_API = "https://api.dictionaryapi.dev/api/v2/entries/en/";
+
+        function updateUI(feedbackClass = "") {
+            // Update game area
+            gameArea.innerHTML = "";
+            gameState.currentWord.forEach((letter, index) => {
+                const box = document.createElement("div");
+                box.className = "letter-box";
+                box.textContent = letter;
+                box.addEventListener("click", () => handleLetterClick(index));
+                gameArea.appendChild(box);
+            });
+
+            // Add feedback class for visual feedback
+            gameArea.className = `game-box ${feedbackClass}`;
+
+            // Update stats
+            chainLengthEl.textContent = gameState.chainLength;
+            wordPossibilitiesEl.textContent = calculatePossibleWords();
+        }
+
+        function showMessage(text, isError = false) {
+            messageEl.textContent = text;
+            messageEl.style.color = isError ? "var(--error-color)" : "var(--text-color)";
+        }
+
+        function showDefinition(definition) {
+            definitionEl.textContent = definition ? `Definition: ${definition}` : "";
+        }
+
+        function handleLetterClick(index) {
+            const newLetter = prompt("Enter a new letter:");
+            if (!newLetter || newLetter.length > 1 || !/[a-zA-Z]/.test(newLetter)) {
+                showMessage("Invalid letter. Try again.", true);
+                return;
+            }
+
+            // Save the current word before updating
+            gameState.previousWord = [...gameState.currentWord];
+            gameState.currentWord[index] = newLetter.toUpperCase();
+            checkWordValidity();
+        }
+
+        function calculatePossibleWords() {
+            // Placeholder for actual calculation logic
+            return Math.floor(Math.random() * 10);
+        }
+
+        async function checkWordValidity() {
+            const word = gameState.currentWord.join("");
+            if (gameState.discoveredWords.has(word)) {
+                showMessage(`"${word}" is a duplicate word!`, true);
+                showDefinition("");
+                gameState.currentWord = [...gameState.previousWord]; // Revert to previous word
+                updateUI("duplicate");
+                // Reset UI after feedback
+                setTimeout(() => {
+                    updateUI("");
+                }, 1000);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${DICTIONARY_API}${word}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const definition = data[0]?.meanings[0]?.definitions[0]?.definition || "No definition available.";
+                    showMessage(`"${word}" is a valid word!`);
+                    showDefinition(definition);
+
+                    gameState.chainLength += 1;
+                    gameState.discoveredWords.add(word);
+                    updateUI("correct");
+                    // Reset UI after feedback
+                    setTimeout(() => {
+                        updateUI("");
+                    }, 1000);
+                } else {
+                    showMessage(`"${word}" is not a valid word!`, true);
+                    showDefinition("");
+                    gameState.currentWord = [...gameState.previousWord]; // Revert to previous word
+                    updateUI("error");
+                    // Reset UI after feedback
+                    setTimeout(() => {
+                        updateUI("");
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Dictionary API error:", error);
+                showMessage("Error checking word. Try again later.", true);
+                showDefinition("");
+                updateUI("error");
+                // Reset UI after feedback
+                setTimeout(() => {
+                    updateUI("");
+                }, 1000);
+            }
+        }
+
+        // Initialize Game
+        updateUI();
+    </script>
+</body>
+</html>
