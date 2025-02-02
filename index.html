@@ -69,7 +69,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
             width: 100%;
-            height: 240px;
+            height: 280px;
             transform-style: preserve-3d;
             backface-visibility: hidden;
             transform: rotateX(0deg);
@@ -89,7 +89,7 @@
             gap: 8px;
             position: absolute;
             width: 100%;
-            height: 240px;
+            height: 280px;
             transform-style: preserve-3d;
             backface-visibility: hidden;
             transform: rotateX(180deg);
@@ -180,8 +180,8 @@
             flex: 1;
             position: relative;
             overflow: hidden;
-            height: 45px;
-            min-width: 30px;
+            height: 52px;
+            min-width: 32px;
         }
 
         .key:hover {
@@ -349,40 +349,45 @@
 
             .keyboard {
                 padding: 12px;
-                height: 220px;
-                gap: 6px;
+                height: 260px;
+                gap: 8px;
+            }
+
+            .keyboard-row {
+                padding: 0 !important;
             }
 
             .keyboard-row:nth-child(2) {
-                padding: 0 12px;
+                padding: 0 8px !important;
             }
 
             .keyboard-row:nth-child(3) {
-                padding: 0 40px;
+                padding: 0 32px !important;
             }
 
             .key {
                 font-size: 1.1rem;
                 border-radius: 8px;
-                height: 42px;
+                height: 48px;
             }
 
             .keyboard-actions {
-                height: 42px;
+                height: 48px;
+                margin-top: 8px;
             }
 
             .info-box {
-                height: 220px;
+                height: 260px;
             }
 
             .dynamic-container {
-                height: 220px;
+                height: 260px;
             }
         }
 
         .dynamic-container {
             position: relative;
-            height: 240px;
+            height: 280px;
             margin-bottom: 24px;
             perspective: 1000px;
             width: 100%;
@@ -778,32 +783,17 @@
             }
         });
 
-        // Add these new event listeners in your initialization code
+        // Update the mobile input handling
         document.addEventListener('DOMContentLoaded', function() {
             const mobileInput = document.getElementById('mobile-input');
             
-            // Initial focus
-            mobileInput.focus();
-
-            // Handle keyboard input
-            document.addEventListener('keydown', function(e) {
-                if (gameState.selectedIndex !== undefined) {
-                    if (e.key === 'Backspace' || e.key === 'Delete') {
-                        handleLetterDeletion(gameState.selectedIndex);
-                    } else if (/^[A-Za-z]$/.test(e.key)) {
-                        handleLetterModification(gameState.selectedIndex, e.key.toUpperCase());
-                    }
-                }
-            });
-
-            // Remove the input event listener and just keep focus management
-            mobileInput.addEventListener('blur', function() {
-                setTimeout(() => mobileInput.focus(), 100);
-            });
-
+            // Prevent mobile keyboard from showing
+            mobileInput.readOnly = true;
+            
             // Handle keyboard hiding on mobile
             window.addEventListener('resize', function() {
-                setTimeout(() => mobileInput.focus(), 100);
+                // Remove focus to prevent keyboard from showing
+                mobileInput.blur();
             });
 
             // Initialize the game
