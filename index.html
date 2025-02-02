@@ -66,60 +66,143 @@
             margin-bottom: 24px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            width: 100%;
+            height: 240px;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            transform: rotateX(0deg);
+            box-sizing: border-box;
         }
 
-        .info-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .info-message {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--text-color);
-        }
-
-        .info-definition {
-            font-size: 1rem;
-            color: #94a3b8;
-            line-height: 1.6;
-        }
-
-        .game-box {
-            display: flex;
-            justify-content: center;
-            flex-wrap: nowrap;
-            gap: 8px;
-            margin-bottom: 24px;
-            padding: 24px;
+        .keyboard {
             background: var(--surface-color);
             border-radius: 20px;
-            border: 2px solid transparent;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: absolute;
+            width: 100%;
+            height: 240px;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            transform: rotateX(180deg);
+            box-sizing: border-box;
         }
 
-        .game-box.correct {
-            border-color: var(--correct-color);
-            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
+        .keyboard-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex: 1;
         }
 
-        .game-box.error {
-            border-color: var(--error-color);
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+        .keyboard-row:nth-child(2) {
+            padding: 0 20px;
         }
 
-        .game-box.duplicate {
-            border-color: var(--duplicate-color);
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+        .keyboard-row:nth-child(3) {
+            padding: 0 60px;
         }
 
-        .game-box.deleting {
+        .keyboard-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 4px;
+            height: 45px;
+        }
+
+        .action-key {
+            background: var(--letter-box-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: var(--text-color);
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .action-key:hover {
+            background: var(--letter-box-hover);
+            transform: translateY(-2px);
+        }
+
+        .action-key:active {
+            transform: translateY(0);
+            background: var(--letter-box-selected);
+        }
+
+        .action-key.active {
+            background: var(--letter-box-selected);
             border-color: var(--accent-color);
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+            color: var(--accent-color);
+        }
+
+        .action-key::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        .key {
+            background: var(--letter-box-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: var(--text-color);
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            height: 45px;
+            min-width: 30px;
+        }
+
+        .key:hover {
+            background: var(--letter-box-hover);
+            transform: translateY(-2px);
+        }
+
+        .key:active {
+            transform: translateY(-2px);
+            background: var(--letter-box-selected);
+        }
+
+        .key::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
         }
 
         .letter-box {
@@ -170,6 +253,36 @@
             pointer-events: none;
         }
 
+        .letter-box.add-left::before,
+        .letter-box.add-right::after {
+            content: '+';
+            position: absolute;
+            font-size: 28px;
+            color: var(--accent-color);
+            opacity: 1;
+            pointer-events: none;
+            top: 50%;
+            transform: translateY(-50%);
+            line-height: 1;
+            width: 8px;
+            text-align: center;
+            z-index: 1000;
+            background: var(--surface-color);
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .letter-box.add-left::before {
+            right: calc(100% + 2px);
+        }
+
+        .letter-box.add-right::after {
+            left: calc(100% + 2px);
+        }
+
         .stats {
             display: flex;
             justify-content: space-between;
@@ -192,18 +305,17 @@
             flex: 1;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
-        }
-
-        .stats div:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
         }
 
         .stats span {
             color: var(--accent-color);
             font-weight: 800;
             font-size: 1.125rem;
-            margin-left: 4px;
+            margin-left: 8px;
         }
 
         @media (max-width: 480px) {
@@ -222,9 +334,125 @@
                 font-size: 28px;
             }
 
+            .stats {
+                font-size: 0.75rem;
+                gap: 12px;
+            }
+
             .stats div {
                 padding: 12px 16px;
             }
+
+            .stats span {
+                font-size: 1rem;
+            }
+
+            .keyboard {
+                padding: 12px;
+                height: 220px;
+                gap: 6px;
+            }
+
+            .keyboard-row:nth-child(2) {
+                padding: 0 12px;
+            }
+
+            .keyboard-row:nth-child(3) {
+                padding: 0 40px;
+            }
+
+            .key {
+                font-size: 1.1rem;
+                border-radius: 8px;
+                height: 42px;
+            }
+
+            .keyboard-actions {
+                height: 42px;
+            }
+
+            .info-box {
+                height: 220px;
+            }
+
+            .dynamic-container {
+                height: 220px;
+            }
+        }
+
+        .dynamic-container {
+            position: relative;
+            height: 240px;
+            margin-bottom: 24px;
+            perspective: 1000px;
+            width: 100%;
+            padding: 0;
+        }
+
+        .dynamic-container.keyboard-active .info-box {
+            transform: rotateX(180deg);
+        }
+
+        .dynamic-container.keyboard-active .keyboard {
+            transform: rotateX(0deg);
+        }
+
+        .game-box {
+            display: flex;
+            justify-content: center;
+            flex-wrap: nowrap;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 24px;
+            background: var(--surface-color);
+            border-radius: 20px;
+            border: 2px solid transparent;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .plus-indicator {
+            position: absolute;
+            font-size: 28px;
+            color: var(--accent-color);
+            opacity: 1;
+            pointer-events: none;
+            top: 50%;
+            transform: translateY(-50%);
+            line-height: 1;
+            width: 8px;
+            text-align: center;
+            z-index: 1000;
+            height: 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .plus-indicator.visible {
+            display: flex;
+        }
+
+        .game-box.correct {
+            border-color: var(--correct-color);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
+        }
+
+        .game-box.error {
+            border-color: var(--error-color);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+        }
+
+        .game-box.duplicate {
+            border-color: var(--duplicate-color);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+        }
+
+        .game-box.deleting {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
         }
     </style>
 </head>
@@ -241,10 +469,51 @@
         <!-- Game Area -->
         <div id="game-area" class="game-box"></div>
 
-        <!-- Information Box -->
-        <div class="info-box">
-            <div id="message" class="info-message">Start forming words!</div>
-            <div id="definition" class="info-definition"></div>
+        <!-- Replace the info-box div with this new structure -->
+        <div class="dynamic-container">
+            <div class="info-box">
+                <div id="message" class="info-message">Start forming words!</div>
+                <div id="definition" class="info-definition"></div>
+            </div>
+            <div class="keyboard">
+                <div class="keyboard-row">
+                    <div class="key">Q</div>
+                    <div class="key">W</div>
+                    <div class="key">E</div>
+                    <div class="key">R</div>
+                    <div class="key">T</div>
+                    <div class="key">Y</div>
+                    <div class="key">U</div>
+                    <div class="key">I</div>
+                    <div class="key">O</div>
+                    <div class="key">P</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key">A</div>
+                    <div class="key">S</div>
+                    <div class="key">D</div>
+                    <div class="key">F</div>
+                    <div class="key">G</div>
+                    <div class="key">H</div>
+                    <div class="key">J</div>
+                    <div class="key">K</div>
+                    <div class="key">L</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key">Z</div>
+                    <div class="key">X</div>
+                    <div class="key">C</div>
+                    <div class="key">V</div>
+                    <div class="key">B</div>
+                    <div class="key">N</div>
+                    <div class="key">M</div>
+                </div>
+                <div class="keyboard-actions">
+                    <div class="action-key" id="add-left">←</div>
+                    <div class="action-key" id="delete">⌫</div>
+                    <div class="action-key" id="add-right">→</div>
+                </div>
+            </div>
         </div>
 
         <input type="text" 
@@ -302,12 +571,21 @@
 
         function handleLetterClick(index) {
             const mobileInput = document.getElementById('mobile-input');
-            gameState.selectedIndex = index; // Store selected index
+            gameState.selectedIndex = index;
+            gameState.addMode = null;
             
-            // Highlight the selected letter box
+            // Show keyboard
+            document.querySelector('.dynamic-container').classList.add('keyboard-active');
+            
+            // Highlight the selected letter box and remove plus indicators
             const letterBoxes = document.querySelectorAll('.letter-box');
-            letterBoxes.forEach(box => box.style.background = 'var(--container-bg)');
-            letterBoxes[index].style.background = 'var(--letter-box-selected)';
+            letterBoxes.forEach(box => {
+                box.classList.remove('selected');
+            });
+            letterBoxes[index].classList.add('selected');
+
+            // Remove existing plus indicators
+            document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
             
             // Focus the input and set its value to the current letter
             mobileInput.value = gameState.currentWord[index];
@@ -400,6 +678,106 @@
             }, 100);
         }
 
+        // Add new function to handle adding letters
+        function handleLetterAddition(index, newLetter, position) {
+            gameState.previousWord = [...gameState.currentWord];
+            const newWord = [...gameState.currentWord];
+            const insertIndex = position === 'left' ? index : index + 1;
+            newWord.splice(insertIndex, 0, newLetter);
+            gameState.currentWord = newWord;
+            updateUI();
+            setTimeout(() => {
+                checkWordValidity();
+            }, 100);
+        }
+
+        // Update keyboard event handling
+        document.addEventListener('keydown', function(e) {
+            if (gameState.selectedIndex !== undefined) {
+                const letterBoxes = document.querySelectorAll('.letter-box');
+                
+                // Handle arrow keys for add mode
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    gameState.addMode = 'left';
+                    letterBoxes.forEach(box => box.classList.remove('add-left', 'add-right'));
+                    letterBoxes[gameState.selectedIndex].classList.add('add-left');
+                    return;
+                }
+                if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    gameState.addMode = 'right';
+                    letterBoxes.forEach(box => box.classList.remove('add-left', 'add-right'));
+                    letterBoxes[gameState.selectedIndex].classList.add('add-right');
+                    return;
+                }
+
+                // Handle letter input based on mode
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                    handleLetterDeletion(gameState.selectedIndex);
+                    document.querySelector('.dynamic-container').classList.remove('keyboard-active');
+                    gameState.selectedIndex = undefined;
+                } else if (/^[A-Za-z]$/.test(e.key)) {
+                    const letter = e.key.toUpperCase();
+                    if (gameState.addMode) {
+                        handleLetterAddition(gameState.selectedIndex, letter, gameState.addMode);
+                        gameState.addMode = null;
+                    } else {
+                        handleLetterModification(gameState.selectedIndex, letter);
+                    }
+                    document.querySelector('.dynamic-container').classList.remove('keyboard-active');
+                    gameState.selectedIndex = undefined;
+                }
+            }
+        });
+
+        // Update handleKeyPress for the on-screen keyboard
+        function handleKeyPress(key) {
+            if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
+            
+            if (gameState.addMode) {
+                handleLetterAddition(gameState.selectedIndex, key, gameState.addMode);
+                gameState.addMode = null;
+                document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+            } else {
+                handleLetterModification(gameState.selectedIndex, key);
+            }
+            
+            document.querySelector('.dynamic-container').classList.remove('keyboard-active');
+            gameState.selectedIndex = undefined;
+        }
+
+        // Add action button event listeners
+        document.getElementById('add-left').addEventListener('click', function() {
+            if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
+            gameState.addMode = 'left';
+            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+            this.classList.add('active');
+            showPlusIndicator('left', gameState.selectedIndex);
+        });
+
+        document.getElementById('add-right').addEventListener('click', function() {
+            if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
+            gameState.addMode = 'right';
+            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+            this.classList.add('active');
+            showPlusIndicator('right', gameState.selectedIndex);
+        });
+
+        document.getElementById('delete').addEventListener('click', function() {
+            if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
+            handleLetterDeletion(gameState.selectedIndex);
+            document.querySelector('.dynamic-container').classList.remove('keyboard-active');
+            gameState.selectedIndex = undefined;
+        });
+
+        // Remove the keyboard event listener for arrow keys since we now use buttons
+        document.removeEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+            }
+        });
+
         // Add these new event listeners in your initialization code
         document.addEventListener('DOMContentLoaded', function() {
             const mobileInput = document.getElementById('mobile-input');
@@ -431,6 +809,33 @@
             // Initialize the game
             updateUI();
         });
+
+        // Add keyboard letter click handlers
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('click', () => handleKeyPress(key.textContent));
+        });
+
+        function showPlusIndicator(position, index) {
+            // Remove any existing plus indicators
+            document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
+
+            const gameBox = document.getElementById('game-area');
+            const letterBoxes = document.querySelectorAll('.letter-box');
+            const selectedBox = letterBoxes[index];
+            const boxRect = selectedBox.getBoundingClientRect();
+            const gameBoxRect = gameBox.getBoundingClientRect();
+
+            const plus = document.createElement('div');
+            plus.className = 'plus-indicator visible';
+            plus.textContent = '+';
+            gameBox.appendChild(plus);
+
+            if (position === 'left') {
+                plus.style.left = `${boxRect.left - gameBoxRect.left - 4}px`;
+            } else {
+                plus.style.left = `${boxRect.right - gameBoxRect.left - 4}px`;
+            }
+        }
     </script>
 </body>
 </html>
