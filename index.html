@@ -556,9 +556,14 @@
 
         async function fetchWordPossibilities(word) {
             try {
-                const response = await fetch(`precomputed_words_aggregated.json`);
+                // Get the current URL path
+                const currentPath = window.location.pathname;
+                // Remove the index.html or trailing slash if present
+                const basePath = currentPath.replace(/\/(index\.html)?$/, '');
+                const response = await fetch(`${basePath}/precomputed_words_aggregated.json`);
+                
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
                 const possibilities = data[word] || { total: 0 };
