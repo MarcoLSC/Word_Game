@@ -98,7 +98,7 @@
 
         .keyboard-row {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             justify-content: center;
             flex: 1;
         }
@@ -181,7 +181,7 @@
             position: relative;
             overflow: hidden;
             height: 52px;
-            min-width: 32px;
+            min-width: 28px;
         }
 
         .key:hover {
@@ -348,32 +348,35 @@
             }
 
             .keyboard {
-                padding: 12px;
+                padding: 8px;
                 height: 260px;
-                gap: 8px;
+                gap: 6px;
             }
 
             .keyboard-row {
+                gap: 3px;
                 padding: 0 !important;
             }
 
             .keyboard-row:nth-child(2) {
-                padding: 0 8px !important;
+                padding: 0 4px !important;
             }
 
             .keyboard-row:nth-child(3) {
-                padding: 0 32px !important;
+                padding: 0 24px !important;
             }
 
             .key {
                 font-size: 1.1rem;
                 border-radius: 8px;
                 height: 48px;
+                min-width: 24px;
             }
 
             .keyboard-actions {
                 height: 48px;
-                margin-top: 8px;
+                margin-top: 6px;
+                gap: 4px;
             }
 
             .info-box {
@@ -589,7 +592,8 @@
             });
             letterBoxes[index].classList.add('selected');
 
-            // Remove existing plus indicators
+            // Reset action buttons and indicators
+            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
             document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
             
             // Focus the input and set its value to the current letter
@@ -744,6 +748,7 @@
                 handleLetterAddition(gameState.selectedIndex, key, gameState.addMode);
                 gameState.addMode = null;
                 document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+                document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
             } else {
                 handleLetterModification(gameState.selectedIndex, key);
             }
@@ -755,18 +760,34 @@
         // Add action button event listeners
         document.getElementById('add-left').addEventListener('click', function() {
             if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
-            gameState.addMode = 'left';
-            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
-            this.classList.add('active');
-            showPlusIndicator('left', gameState.selectedIndex);
+            
+            // Toggle add mode
+            if (gameState.addMode === 'left') {
+                gameState.addMode = null;
+                this.classList.remove('active');
+                document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
+            } else {
+                gameState.addMode = 'left';
+                document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+                this.classList.add('active');
+                showPlusIndicator('left', gameState.selectedIndex);
+            }
         });
 
         document.getElementById('add-right').addEventListener('click', function() {
             if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
-            gameState.addMode = 'right';
-            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
-            this.classList.add('active');
-            showPlusIndicator('right', gameState.selectedIndex);
+            
+            // Toggle add mode
+            if (gameState.addMode === 'right') {
+                gameState.addMode = null;
+                this.classList.remove('active');
+                document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
+            } else {
+                gameState.addMode = 'right';
+                document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+                this.classList.add('active');
+                showPlusIndicator('right', gameState.selectedIndex);
+            }
         });
 
         document.getElementById('delete').addEventListener('click', function() {
@@ -774,6 +795,9 @@
             handleLetterDeletion(gameState.selectedIndex);
             document.querySelector('.dynamic-container').classList.remove('keyboard-active');
             gameState.selectedIndex = undefined;
+            gameState.addMode = null;
+            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+            document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
         });
 
         // Remove the keyboard event listener for arrow keys since we now use buttons
@@ -829,3 +853,4 @@
     </script>
 </body>
 </html>
+
