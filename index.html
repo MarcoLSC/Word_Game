@@ -18,9 +18,9 @@
             --shadow-color: rgba(0, 0, 0, 0.25);
             --box-gradient: linear-gradient(145deg, #112240, #0a192f);
             --surface-color: #1b2d4d;
-            --letter-box-bg: #1e293b;
-            --letter-box-hover: #2d3f59;
-            --letter-box-selected: #3b5682;
+            --letter-box-bg: #2a4365;
+            --letter-box-hover: #3c5a8c;
+            --letter-box-selected: #4a72b3;
         }
 
         body {
@@ -66,7 +66,7 @@
             margin-bottom: 24px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
             width: 100%;
             height: 280px;
@@ -94,6 +94,7 @@
             backface-visibility: hidden;
             transform: rotateX(180deg);
             box-sizing: border-box;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .keyboard-row {
@@ -124,7 +125,7 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
             color: var(--text-color);
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -386,19 +387,23 @@
             .dynamic-container {
                 height: 260px;
             }
+
+            .action-key {
+                font-size: 1.75rem;
+            }
         }
 
         .dynamic-container {
             position: relative;
             height: 280px;
             margin-bottom: 24px;
-            perspective: 1000px;
+            perspective: 1500px;
             width: 100%;
             padding: 0;
         }
 
         .dynamic-container.keyboard-active .info-box {
-            transform: rotateX(180deg);
+            transform: rotateX(-180deg);
         }
 
         .dynamic-container.keyboard-active .keyboard {
@@ -853,4 +858,3 @@
     </script>
 </body>
 </html>
-
