@@ -554,7 +554,22 @@
         // Dictionary API Base URL
         const DICTIONARY_API = "https://api.dictionaryapi.dev/api/v2/entries/en/";
 
-        function updateUI(feedbackClass = "") {
+        async function fetchWordPossibilities(word) {
+            try {
+                const response = await fetch(`precomputed_words_aggregated.json`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                const possibilities = data[word] || { total: 0 };
+                return Math.max(0, possibilities.total - 1);
+            } catch (error) {
+                console.error('Error fetching word possibilities:', error);
+                return 0;
+            }
+        }
+
+        async function updateUI(feedbackClass = "") {
             // Update game area
             gameArea.innerHTML = "";
             gameState.currentWord.forEach((letter, index) => {
@@ -570,7 +585,9 @@
 
             // Update stats
             chainLengthEl.textContent = gameState.chainLength;
-            wordPossibilitiesEl.textContent = calculatePossibleWords();
+            const currentWord = gameState.currentWord.join('');
+            const possibilities = await fetchWordPossibilities(currentWord);
+            wordPossibilitiesEl.textContent = possibilities;
         }
 
         function showMessage(text, isError = false) {
@@ -607,20 +624,37 @@
         }
 
         function calculatePossibleWords() {
-            // Placeholder for actual calculation logic
-            return Math.floor(Math.random() * 10);
+            if (!wordPossibilities) {
+                console.log('Word possibilities not loaded yet');
+                return 0;
+            }
+            
+            const currentWordStr = gameState.currentWord.join('');
+            console.log('Calculating possibilities for:', currentWordStr);
+            
+            const possibilities = wordPossibilities[currentWordStr];
+            console.log('Found possibilities object:', possibilities);
+            
+            if (!possibilities) {
+                console.log('No possibilities found for word');
+                return 0;
+            }
+            
+            const result = Math.max(0, possibilities.total - 1);
+            console.log('Calculated result:', result);
+            return result;
         }
 
         async function checkWordValidity() {
             const word = gameState.currentWord.join("");
-            console.log('Checking word:', word); // Debug log
+            console.log('Checking word:', word);
 
             if (gameState.discoveredWords.has(word)) {
-                console.log('Duplicate word found'); // Debug log
+                console.log('Duplicate word found');
                 showMessage(`"${word}" is a duplicate word!`, true);
                 showDefinition("");
                 gameState.currentWord = [...gameState.previousWord];
-                updateUI("duplicate");
+                await updateUI("duplicate");
                 setTimeout(() => {
                     updateUI("");
                 }, 1000);
@@ -629,7 +663,7 @@
 
             try {
                 const response = await fetch(`${DICTIONARY_API}${word}`);
-                console.log('API response:', response.ok); // Debug log
+                console.log('API response:', response.ok);
                 if (response.ok) {
                     const data = await response.json();
                     const definition = data[0]?.meanings[0]?.definitions[0]?.definition || "No definition available.";
@@ -638,18 +672,16 @@
 
                     gameState.chainLength += 1;
                     gameState.discoveredWords.add(word);
-                    updateUI("correct");
-                    // Reset UI after feedback
+                    await updateUI("correct");
                     setTimeout(() => {
                         updateUI("");
                     }, 1000);
                 } else {
-                    console.log('Invalid word'); // Debug log
+                    console.log('Invalid word');
                     showMessage(`"${word}" is not a valid word!`, true);
                     showDefinition("");
                     gameState.currentWord = [...gameState.previousWord];
-                    updateUI("error");
-                    // Reset UI after feedback
+                    await updateUI("error");
                     setTimeout(() => {
                         updateUI("");
                     }, 1000);
@@ -658,8 +690,7 @@
                 console.error("Dictionary API error:", error);
                 showMessage("Error checking word. Try again later.", true);
                 showDefinition("");
-                updateUI("error");
-                // Reset UI after feedback
+                await updateUI("error");
                 setTimeout(() => {
                     updateUI("");
                 }, 1000);
@@ -667,50 +698,45 @@
         }
 
         // Handle letter deletion
-        function handleLetterDeletion(index) {
+        async function handleLetterDeletion(index) {
             gameState.previousWord = [...gameState.currentWord];
             gameState.currentWord.splice(index, 1);
-            updateUI("deleting");
+            await updateUI("deleting");
             setTimeout(() => {
                 checkWordValidity();
             }, 300);
         }
 
         // Handle letter modification
-        function handleLetterModification(index, newLetter) {
-            // Store the current state
+        async function handleLetterModification(index, newLetter) {
             gameState.previousWord = [...gameState.currentWord];
-            // Create new word array and update it
             const newWord = [...gameState.currentWord];
             newWord[index] = newLetter;
-            // Update state
             gameState.currentWord = newWord;
-            // Update UI and validate
-            updateUI();
+            await updateUI();
             setTimeout(() => {
                 checkWordValidity();
             }, 100);
         }
 
-        // Add new function to handle adding letters
-        function handleLetterAddition(index, newLetter, position) {
+        // Handle letter addition
+        async function handleLetterAddition(index, newLetter, position) {
             gameState.previousWord = [...gameState.currentWord];
             const newWord = [...gameState.currentWord];
             const insertIndex = position === 'left' ? index : index + 1;
             newWord.splice(insertIndex, 0, newLetter);
             gameState.currentWord = newWord;
-            updateUI();
+            await updateUI();
             setTimeout(() => {
                 checkWordValidity();
             }, 100);
         }
 
         // Update keyboard event handling
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', async function(e) {
             if (gameState.selectedIndex !== undefined) {
                 const letterBoxes = document.querySelectorAll('.letter-box');
                 
-                // Handle arrow keys for add mode
                 if (e.key === 'ArrowLeft') {
                     e.preventDefault();
                     gameState.addMode = 'left';
@@ -726,18 +752,17 @@
                     return;
                 }
 
-                // Handle letter input based on mode
                 if (e.key === 'Backspace' || e.key === 'Delete') {
-                    handleLetterDeletion(gameState.selectedIndex);
+                    await handleLetterDeletion(gameState.selectedIndex);
                     document.querySelector('.dynamic-container').classList.remove('keyboard-active');
                     gameState.selectedIndex = undefined;
                 } else if (/^[A-Za-z]$/.test(e.key)) {
                     const letter = e.key.toUpperCase();
                     if (gameState.addMode) {
-                        handleLetterAddition(gameState.selectedIndex, letter, gameState.addMode);
+                        await handleLetterAddition(gameState.selectedIndex, letter, gameState.addMode);
                         gameState.addMode = null;
                     } else {
-                        handleLetterModification(gameState.selectedIndex, letter);
+                        await handleLetterModification(gameState.selectedIndex, letter);
                     }
                     document.querySelector('.dynamic-container').classList.remove('keyboard-active');
                     gameState.selectedIndex = undefined;
@@ -746,16 +771,16 @@
         });
 
         // Update handleKeyPress for the on-screen keyboard
-        function handleKeyPress(key) {
+        async function handleKeyPress(key) {
             if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
             
             if (gameState.addMode) {
-                handleLetterAddition(gameState.selectedIndex, key, gameState.addMode);
+                await handleLetterAddition(gameState.selectedIndex, key, gameState.addMode);
                 gameState.addMode = null;
                 document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
                 document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
             } else {
-                handleLetterModification(gameState.selectedIndex, key);
+                await handleLetterModification(gameState.selectedIndex, key);
             }
             
             document.querySelector('.dynamic-container').classList.remove('keyboard-active');
