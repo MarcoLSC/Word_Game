@@ -482,7 +482,7 @@
         <!-- Game Area -->
         <div id="game-area" class="game-box"></div>
 
-        <!-- Replace the info-box div with this new structure -->
+        <!-- Dynamic Container -->
         <div class="dynamic-container">
             <div class="info-box">
                 <div id="message" class="info-message">Start forming words!</div>
@@ -537,6 +537,7 @@
     </div>
 
     <script>
+        // Game state
         const gameState = {
             currentWord: ["H", "O", "U", "S", "E"],
             previousWord: ["H", "O", "U", "S", "E"],
@@ -554,41 +555,75 @@
         // Dictionary API Base URL
         const DICTIONARY_API = "https://api.dictionaryapi.dev/api/v2/entries/en/";
 
-        async function fetchWordPossibilities(word) {
+        // Precomputed words storage
+        let precomputedWords = null;
+
+        // Load precomputed words data
+        async function loadPrecomputedWords() {
             try {
-                // Try to fetch using relative path first
-                const response = await fetch('precomputed_words_aggregated.json');
-                if (!response.ok) {
-                    console.error(`HTTP error! status: ${response.status}`);
-                    return 0;
+                // Try different paths for the JSON file
+                const possiblePaths = [
+                    'precomputed_words_aggregated.json',  // Same directory
+                    './precomputed_words_aggregated.json', // Explicit local path
+                    window.location.pathname.replace(/\/[^/]*$/, '') + '/precomputed_words_aggregated.json' // Base path
+                ];
+
+                let response = null;
+                let error = null;
+
+                // Try each path until one works
+                for (const path of possiblePaths) {
+                    try {
+                        console.log('Trying to load from:', path);
+                        response = await fetch(path);
+                        if (response.ok) {
+                            break; // Found a working path
+                        }
+                    } catch (e) {
+                        error = e;
+                        console.log('Failed to load from:', path);
+                        continue; // Try next path
+                    }
                 }
-                
-                const data = await response.json();
-                const upperWord = word.toUpperCase();
-                console.log('Checking possibilities for:', upperWord);
-                
-                if (!data || typeof data !== 'object') {
-                    console.error('Invalid data format received:', data);
-                    return 0;
+
+                if (!response || !response.ok) {
+                    throw error || new Error('Failed to load precomputed words from any path');
                 }
-                
-                const possibilities = data[upperWord];
-                console.log('Found possibilities:', possibilities);
-                
-                if (!possibilities || typeof possibilities.total !== 'number') {
-                    console.log('No valid possibilities found for word:', upperWord);
-                    return 0;
-                }
-                
-                return Math.max(0, possibilities.total - 1);
+
+                precomputedWords = await response.json();
+                console.log('Precomputed words loaded successfully');
+                updatePossibilitiesCounter(gameState.currentWord.join(''));
             } catch (error) {
-                console.error('Error fetching word possibilities:', error);
-                return 0;
+                console.error('Error loading precomputed words:', error);
+                showMessage('Error loading word data. Please serve the files through a web server.', true);
             }
         }
 
+        // Update possibilities counter
+        function updatePossibilitiesCounter(word) {
+            if (!precomputedWords) {
+                console.log('Precomputed words not loaded yet');
+                wordPossibilitiesEl.textContent = '0';
+                return;
+            }
+
+            const upperWord = word.toUpperCase();
+            console.log('Checking possibilities for:', upperWord);
+            
+            const possibilities = precomputedWords[upperWord];
+            if (!possibilities || typeof possibilities.total !== 'number') {
+                console.log('No possibilities found for word:', upperWord);
+                wordPossibilitiesEl.textContent = '0';
+                return;
+            }
+
+            const possibleWords = Math.max(0, possibilities.total - 1);
+            console.log('Found possible words count:', possibleWords);
+            wordPossibilitiesEl.textContent = possibleWords;
+        }
+
+        // Update UI
         async function updateUI(feedbackClass = "") {
-            // Update game area
             gameArea.innerHTML = "";
             gameState.currentWord.forEach((letter, index) => {
                 const box = document.createElement("div");
@@ -598,16 +633,10 @@
                 gameArea.appendChild(box);
             });
 
-            // Add feedback class for visual feedback
             gameArea.className = `game-box ${feedbackClass}`;
-
-            // Update stats
             chainLengthEl.textContent = gameState.chainLength;
             const currentWord = gameState.currentWord.join('');
-            console.log('Current word for possibilities check:', currentWord);
-            const possibilities = await fetchWordPossibilities(currentWord);
-            console.log('Received possibilities count:', possibilities);
-            wordPossibilitiesEl.textContent = possibilities;
+            updatePossibilitiesCounter(currentWord);
         }
 
         function showMessage(text, isError = false) {
@@ -878,6 +907,12 @@
                 plus.style.left = `${boxRect.right - gameBoxRect.left - 4}px`;
             }
         }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPrecomputedWords();
+            updateUI();
+        });
     </script>
 </body>
 </html>
