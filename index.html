@@ -557,7 +557,6 @@
         async function fetchWordPossibilities(word) {
             try {
                 console.log('Attempting to fetch word possibilities for:', word);
-                // Log the complete URL being used
                 const url = new URL('./precomputed_words_aggregated.json', window.location.href);
                 console.log('Fetching from URL:', url.toString());
                 
@@ -570,22 +569,31 @@
                 }
                 
                 const data = await response.json();
-                console.log('JSON data loaded, checking word:', word);
-                
+                console.log('JSON data structure:', {
+                    dataType: typeof data,
+                    isArray: Array.isArray(data),
+                    keys: Object.keys(data).slice(0, 5), // Show first 5 keys
+                    sampleEntry: Object.entries(data)[0] // Show first entry
+                });
+                 
                 const upperWord = word.toUpperCase();
                 console.log('Checking possibilities for:', upperWord);
                 
-                const possibilities = data[upperWord];
-                console.log('Found possibilities:', possibilities);
-                
-                if (!possibilities || typeof possibilities.total !== 'number') {
-                    console.log('No valid possibilities found for word:', upperWord);
-                    return 0;
+                // Check if the word exists in any case format
+                const wordKey = Object.keys(data).find(key => key.toUpperCase() === upperWord);
+                if (wordKey) {
+                    const possibilities = data[wordKey];
+                    console.log('Found possibilities for key:', wordKey, possibilities);
+                    
+                    if (possibilities && typeof possibilities.total === 'number') {
+                        const result = Math.max(0, possibilities.total - 1);
+                        console.log('Returning possibility count:', result);
+                        return result;
+                    }
                 }
                 
-                const result = Math.max(0, possibilities.total - 1);
-                console.log('Returning possibility count:', result);
-                return result;
+                console.log('No valid possibilities found for word:', upperWord);
+                return 0;
             } catch (error) {
                 console.error('Detailed error in fetchWordPossibilities:', {
                     message: error.message,
