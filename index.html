@@ -537,12 +537,49 @@
     </div>
 
     <script>
-        const gameState = {
+        // Game state
+        const defaultGameState = {
             currentWord: ["H", "O", "U", "S", "E"],
             previousWord: ["H", "O", "U", "S", "E"],
             chainLength: 0,
-            discoveredWords: new Set(["HOUSE"]),
+            discoveredWords: new Set(["HOUSE"])
         };
+
+        // Load game state from localStorage or use default
+        let gameState;
+        try {
+            const savedState = localStorage.getItem('wordMorphGameState');
+            if (savedState) {
+                const parsedState = JSON.parse(savedState);
+                gameState = {
+                    ...parsedState,
+                    // Convert the discoveredWords array back to a Set
+                    discoveredWords: new Set(parsedState.discoveredWords)
+                };
+                console.log('Loaded saved game state:', gameState);
+            } else {
+                gameState = defaultGameState;
+                console.log('No saved game state found, using default');
+            }
+        } catch (error) {
+            console.error('Error loading game state:', error);
+            gameState = defaultGameState;
+        }
+
+        // Function to save game state
+        function saveGameState() {
+            try {
+                const stateToSave = {
+                    ...gameState,
+                    // Convert Set to Array for JSON serialization
+                    discoveredWords: Array.from(gameState.discoveredWords)
+                };
+                localStorage.setItem('wordMorphGameState', JSON.stringify(stateToSave));
+                console.log('Game state saved');
+            } catch (error) {
+                console.error('Error saving game state:', error);
+            }
+        }
 
         // DOM Elements
         const messageEl = document.getElementById("message");
@@ -637,6 +674,13 @@
 
         function handleLetterClick(index) {
             const mobileInput = document.getElementById('mobile-input');
+            
+            // If clicking the same letter again, unselect it
+            if (gameState.selectedIndex === index) {
+                unselectCurrentLetter();
+                return;
+            }
+            
             gameState.selectedIndex = index;
             gameState.addMode = null;
             
@@ -689,9 +733,9 @@
                 console.log('Duplicate word found');
                 showMessage(`"${word}" is a duplicate word!`, true);
                 showDefinition("");
-                gameState.currentWord = [...gameState.previousWord];
-                await updateUI("duplicate");
+                updateUI("duplicate");
                 setTimeout(() => {
+                    gameState.currentWord = [...gameState.previousWord];
                     updateUI("");
                 }, 1000);
                 return;
@@ -705,10 +749,10 @@
                     const definition = data[0]?.meanings[0]?.definitions[0]?.definition || "No definition available.";
                     showMessage(`"${word}" is a valid word!`);
                     showDefinition(definition);
-
                     gameState.chainLength += 1;
                     gameState.discoveredWords.add(word);
-                    await updateUI("correct");
+                    saveGameState(); // Save after successful word
+                    updateUI("correct");
                     setTimeout(() => {
                         updateUI("");
                     }, 1000);
@@ -716,9 +760,9 @@
                     console.log('Invalid word');
                     showMessage(`"${word}" is not a valid word!`, true);
                     showDefinition("");
-                    gameState.currentWord = [...gameState.previousWord];
-                    await updateUI("error");
+                    updateUI("error");
                     setTimeout(() => {
+                        gameState.currentWord = [...gameState.previousWord];
                         updateUI("");
                     }, 1000);
                 }
@@ -726,8 +770,9 @@
                 console.error("Dictionary API error:", error);
                 showMessage("Error checking word. Try again later.", true);
                 showDefinition("");
-                await updateUI("error");
+                updateUI("error");
                 setTimeout(() => {
+                    gameState.currentWord = [...gameState.previousWord];
                     updateUI("");
                 }, 1000);
             }
@@ -737,7 +782,7 @@
         async function handleLetterDeletion(index) {
             gameState.previousWord = [...gameState.currentWord];
             gameState.currentWord.splice(index, 1);
-            await updateUI("deleting");
+            updateUI("deleting");
             setTimeout(() => {
                 checkWordValidity();
             }, 300);
@@ -749,7 +794,7 @@
             const newWord = [...gameState.currentWord];
             newWord[index] = newLetter;
             gameState.currentWord = newWord;
-            await updateUI();
+            updateUI();
             setTimeout(() => {
                 checkWordValidity();
             }, 100);
@@ -762,7 +807,7 @@
             const insertIndex = position === 'left' ? index : index + 1;
             newWord.splice(insertIndex, 0, newLetter);
             gameState.currentWord = newWord;
-            await updateUI();
+            updateUI();
             setTimeout(() => {
                 checkWordValidity();
             }, 100);
@@ -787,11 +832,15 @@
                     letterBoxes[gameState.selectedIndex].classList.add('add-right');
                     return;
                 }
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    unselectCurrentLetter();
+                    return;
+                }
 
                 if (e.key === 'Backspace' || e.key === 'Delete') {
                     await handleLetterDeletion(gameState.selectedIndex);
-                    document.querySelector('.dynamic-container').classList.remove('keyboard-active');
-                    gameState.selectedIndex = undefined;
+                    unselectCurrentLetter();
                 } else if (/^[A-Za-z]$/.test(e.key)) {
                     const letter = e.key.toUpperCase();
                     if (gameState.addMode) {
@@ -800,11 +849,23 @@
                     } else {
                         await handleLetterModification(gameState.selectedIndex, letter);
                     }
-                    document.querySelector('.dynamic-container').classList.remove('keyboard-active');
-                    gameState.selectedIndex = undefined;
+                    unselectCurrentLetter();
                 }
             }
         });
+
+        // Add this new function to handle letter unselection
+        function unselectCurrentLetter() {
+            const letterBoxes = document.querySelectorAll('.letter-box');
+            letterBoxes.forEach(box => {
+                box.classList.remove('selected', 'add-left', 'add-right');
+            });
+            document.querySelector('.dynamic-container').classList.remove('keyboard-active');
+            gameState.selectedIndex = undefined;
+            gameState.addMode = null;
+            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
+            document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
+        }
 
         // Update handleKeyPress for the on-screen keyboard
         async function handleKeyPress(key) {
@@ -916,6 +977,39 @@
                 plus.style.left = `${boxRect.right - gameBoxRect.left - 4}px`;
             }
         }
+
+        // Add a reset button to the UI
+        const resetButton = document.createElement('button');
+        resetButton.textContent = 'Reset Game';
+        resetButton.style.cssText = `
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        `;
+        resetButton.addEventListener('mouseover', () => {
+            resetButton.style.background = 'var(--accent-hover)';
+        });
+        resetButton.addEventListener('mouseout', () => {
+            resetButton.style.background = 'var(--accent-color)';
+        });
+        resetButton.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset the game? This will clear your current progress.')) {
+                gameState = {...defaultGameState};
+                gameState.discoveredWords = new Set(["HOUSE"]);
+                localStorage.removeItem('wordMorphGameState');
+                updateUI();
+                showMessage('Game reset! Start a new chain from HOUSE');
+                showDefinition('');
+            }
+        });
+        document.querySelector('.container').appendChild(resetButton);
     </script>
 </body>
 </html>
