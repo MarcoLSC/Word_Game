@@ -482,37 +482,24 @@
             height: 100%;
             background: linear-gradient(135deg, var(--bg-color) 0%, #1e293b 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            padding-top: 40px;
         }
 
-        .word-chain-view.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .word-chain {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: 70vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 20px 0;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .word-chain::-webkit-scrollbar {
-            display: none;
+        .chain-view-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.4;
         }
 
         .chain-word {
@@ -520,10 +507,10 @@
             width: 120px;
             margin: 0 auto;
             padding: 15px 20px;
-            background: linear-gradient(135deg, rgba(255, 121, 100, 0.3) 0%, rgba(100, 110, 255, 0.3) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, rgba(255, 121, 100, 0.04) 0%, rgba(100, 110, 255, 0.04) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 12px;
-            color: white;
+            color: rgba(255, 255, 255, 0.85);
             font-size: 1rem;
             font-weight: 600;
             text-align: center;
@@ -531,8 +518,8 @@
             transition: all 0.3s ease;
             margin-bottom: 35px;
             box-shadow: 
-                0 4px 16px rgba(0, 0, 0, 0.15),
-                inset 0 1px 2px rgba(255, 255, 255, 0.1);
+                0 4px 16px rgba(0, 0, 0, 0.03),
+                inset 0 1px 2px rgba(255, 255, 255, 0.02);
             backdrop-filter: blur(8px);
             z-index: 2;
         }
@@ -542,38 +529,34 @@
             position: absolute;
             left: 50%;
             bottom: -35px;
-            width: 2px;
+            width: 4px;
             height: 35px;
-            background: repeating-linear-gradient(
-                to bottom,
-                rgba(255, 255, 255, 0.2) 0,
-                rgba(255, 255, 255, 0.2) 4px,
-                transparent 4px,
+            background: radial-gradient(circle at center,
+                rgba(255, 255, 255, 0.3) 0,
+                rgba(255, 255, 255, 0.3) 2px,
+                transparent 2px,
                 transparent 8px
-            );
+            ) repeat-y center;
+            background-size: 4px 8px;
             transform: translateX(-50%);
             pointer-events: none;
             z-index: 1;
         }
 
-        .chain-word:last-child::after {
-            display: none;
-        }
-
         .chain-word:hover {
             transform: scale(1.05) translateY(-2px);
             box-shadow: 
-                0 8px 24px rgba(0, 0, 0, 0.2),
-                inset 0 2px 4px rgba(255, 255, 255, 0.2);
-            background: linear-gradient(135deg, rgba(255, 121, 100, 0.5) 0%, rgba(100, 110, 255, 0.5) 100%);
+                0 8px 24px rgba(0, 0, 0, 0.05),
+                inset 0 2px 4px rgba(255, 255, 255, 0.03);
+            background: linear-gradient(135deg, rgba(255, 121, 100, 0.08) 0%, rgba(100, 110, 255, 0.08) 100%);
         }
 
         .chain-word.selected {
             border-color: var(--correct-color);
             box-shadow: 
-                0 0 30px rgba(34, 197, 94, 0.15),
-                inset 0 2px 4px rgba(255, 255, 255, 0.2);
-            background: linear-gradient(135deg, rgba(255, 121, 100, 0.7) 0%, rgba(100, 110, 255, 0.7) 100%);
+                0 0 30px rgba(34, 197, 94, 0.03),
+                inset 0 2px 4px rgba(255, 255, 255, 0.03);
+            background: linear-gradient(135deg, rgba(255, 121, 100, 0.12) 0%, rgba(100, 110, 255, 0.12) 100%);
         }
 
         .close-wheel {
@@ -601,8 +584,8 @@
         }
 
         .rollback-button {
-            position: absolute;
-            bottom: 80px;
+            position: fixed;
+            bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--accent-color);
@@ -614,11 +597,18 @@
             font-family: 'Outfit', sans-serif;
             font-weight: 600;
             opacity: 0;
+            pointer-events: none;
             transition: all 0.3s ease;
+            z-index: 1002;
+        }
+
+        .rollback-button.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .reset-button {
-            position: absolute;
+            position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
@@ -632,19 +622,11 @@
             font-weight: 600;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
         }
 
         .reset-button:hover {
             background: var(--letter-box-hover);
-            transform: translateX(-50%) translateY(-2px);
-        }
-
-        .rollback-button.visible {
-            opacity: 1;
-        }
-
-        .rollback-button:hover {
-            background: var(--accent-hover);
             transform: translateX(-50%) translateY(-2px);
         }
 
@@ -658,6 +640,35 @@
                 padding: 10px;
                 font-size: 1rem;
             }
+        }
+
+        .word-chain-view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .word-chain {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: calc(70vh - 180px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .word-chain::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chain-word:last-child::after {
+            display: none;
         }
     </style>
 </head>
@@ -729,6 +740,7 @@
 
         <!-- Add this after the game-area div -->
         <div class="word-chain-view">
+            <div class="chain-view-title">Your Word Chain Journey<br>Click a word to roll back</div>
             <button class="close-wheel">×</button>
             <div class="word-chain"></div>
             <button class="rollback-button">Roll Back to Selected Word</button>
@@ -1180,13 +1192,9 @@
 
         // Add this to your JavaScript section
         const chainView = document.querySelector('.word-chain-view');
-        const wheelInner = document.querySelector('.word-wheel-inner');
         const closeWheel = document.querySelector('.close-wheel');
         const rollbackButton = document.querySelector('.rollback-button');
         let selectedWordIndex = -1;
-        let wheelRotation = 0;
-        let startY = 0;
-        let currentRotation = 0;
 
         // Make the chain length clickable
         document.querySelector('.stats div:first-child').addEventListener('click', showWordChain);
@@ -1204,6 +1212,10 @@
                 'linear-gradient(135deg, #646eff 0%, #64b4ff 100%)',  // Cool
                 'linear-gradient(135deg, #ff9664 0%, #646eff 100%)'   // Mixed
             ];
+            
+            // Reset rollback state
+            selectedWordIndex = -1;
+            rollbackButton.classList.remove('visible');
             
             words.forEach((word, index) => {
                 const wordContainer = document.createElement('div');
@@ -1236,28 +1248,6 @@
             selectedWordIndex = -1;
         });
 
-        // Add touch/mouse wheel controls
-        wheelInner.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-            currentRotation = wheelRotation;
-        });
-
-        wheelInner.addEventListener('touchmove', (e) => {
-            const deltaY = e.touches[0].clientY - startY;
-            wheelRotation = currentRotation + deltaY * 0.3; // Reduced multiplier for smoother rotation
-            requestAnimationFrame(() => {
-                wheelInner.style.transform = `rotateX(${wheelRotation}deg)`;
-            });
-        });
-
-        wheelInner.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            wheelRotation += e.deltaY * 0.3; // Reduced multiplier for smoother rotation
-            requestAnimationFrame(() => {
-                wheelInner.style.transform = `rotateX(${wheelRotation}deg)`;
-            });
-        });
-
         rollbackButton.addEventListener('click', () => {
             if (selectedWordIndex === -1) return;
             
@@ -1267,7 +1257,7 @@
             // Keep words up to and including the selected word
             const newWords = words.slice(0, selectedWordIndex + 1);
             gameState.discoveredWords = new Set(newWords);
-            gameState.chainLength = newWords.length - 1;
+            gameState.chainLength = selectedWordIndex;
             gameState.currentWord = selectedWord.split('');
             gameState.previousWord = selectedWord.split('');
             
