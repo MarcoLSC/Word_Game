@@ -2230,51 +2230,40 @@
                          `Play at: ${window.location.href}`;
             }
             
-            return message;
+            return encodeURIComponent(message);
         }
 
-        function shareToNative(text) {
-            if (navigator.share) {
-                navigator.share({
-                    text: text,
-                    url: window.location.href
-                }).catch(console.error);
-            } else {
-                // Fallback for browsers that don't support native sharing
-                const encodedText = encodeURIComponent(text);
-                window.location.href = `https://wa.me/?text=${encodedText}`;
+        function openShareWindow(url) {
+            const shareWindow = window.open(url, '_blank');
+            
+            // Check if the window was opened successfully
+            if (shareWindow) {
+                // Set up a timer to check if the window is closed
+                const timer = setInterval(() => {
+                    if (shareWindow.closed) {
+                        clearInterval(timer);
+                        // Focus back on our game window
+                        window.focus();
+                    }
+                }, 500);
             }
         }
 
         document.getElementById('share-whatsapp').addEventListener('click', () => {
             const message = generateShareMessage();
-            if (navigator.share) {
-                shareToNative(message);
-            } else {
-                // For WhatsApp, we combine message and URL in the text parameter
-                window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
-            }
+            openShareWindow(`https://wa.me/?text=${message}`);
         });
 
         document.getElementById('share-telegram').addEventListener('click', () => {
             const message = generateShareMessage();
-            if (navigator.share) {
-                shareToNative(message);
-            } else {
-                // For Telegram, we use the text parameter for the message
-                window.location.href = `https://t.me/share/url?text=${encodeURIComponent(message)}`;
-            }
+            openShareWindow(`https://t.me/share/url?url=${window.location.href}&text=${message}`);
         });
 
         document.getElementById('share-twitter').addEventListener('click', () => {
             const message = generateShareMessage();
-            if (navigator.share) {
-                shareToNative(message);
-            } else {
-                // For Twitter, we use the text parameter for the message
-                window.location.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
-            }
+            openShareWindow(`https://twitter.com/intent/tweet?text=${message}`);
         });
     </script>
 </body>
 </html>
+
