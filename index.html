@@ -488,33 +488,18 @@
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            padding-top: 40px;
         }
 
         .chain-view-title {
             color: white;
             font-size: 1.5rem;
             font-weight: 600;
-            margin: 40px 0 30px;
+            margin-bottom: 30px;
             text-align: center;
             line-height: 1.4;
-            padding: 0 20px;
-        }
-
-        .word-chain {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: calc(100vh - 280px); /* Adjusted to account for header and buttons */
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 20px 0;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .chain-word {
@@ -539,79 +524,6 @@
             z-index: 2;
         }
 
-        .chain-buttons {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background: linear-gradient(to top, var(--bg-color) 0%, transparent 100%);
-            gap: 12px;
-        }
-
-        .rollback-button {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            z-index: 1002;
-            width: 200px;
-        }
-
-        .reset-button {
-            background: var(--surface-color);
-            color: var(--text-color);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 1002;
-            width: 200px;
-        }
-
-        .close-wheel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--surface-color);
-            border: none;
-            color: var(--text-color);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            z-index: 1001;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .word-chain-view.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .word-chain::-webkit-scrollbar {
-            display: none;
-        }
-
         .chain-word::after {
             content: '';
             position: absolute;
@@ -631,10 +543,6 @@
             z-index: 1;
         }
 
-        .chain-word:last-child::after {
-            display: none;
-        }
-
         .chain-word:hover {
             transform: scale(1.05) translateY(-2px);
             box-shadow: 
@@ -651,94 +559,7 @@
             background: linear-gradient(135deg, rgba(255, 121, 100, 0.12) 0%, rgba(100, 110, 255, 0.12) 100%);
         }
 
-        .close-wheel:hover {
-            background: var(--letter-box-hover);
-            transform: rotate(90deg);
-        }
-
-        .rollback-button.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .reset-button:hover {
-            background: var(--letter-box-hover);
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 480px) {
-            .word-chain {
-                max-width: 300px;
-                height: calc(100vh - 300px);
-            }
-            
-            .chain-word {
-                padding: 12px 16px;
-                font-size: 1rem;
-                width: 100px;
-            }
-
-            .chain-buttons {
-                padding: 16px;
-            }
-
-            .rollback-button,
-            .reset-button {
-                width: 180px;
-                padding: 10px 20px;
-            }
-        }
-
-        .help-button {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--surface-color);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-color);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            z-index: 998;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .help-button:hover {
-            background: var(--letter-box-hover);
-            transform: scale(1.05);
-        }
-
-        .instructions-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--bg-color) 0%, #1e293b 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 1001;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(10px);
-            padding: 40px 0;
-            overflow-y: auto;
-        }
-
-        .instructions-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .close-instructions {
+        .close-wheel {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -754,311 +575,19 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            z-index: 1002;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1001;
         }
 
-        .close-instructions:hover {
+        .close-wheel:hover {
             background: var(--letter-box-hover);
             transform: rotate(90deg);
         }
 
-        .instructions-content {
-            max-width: 600px;
-            width: 100%;
-            color: var(--text-color);
-            font-size: 1.1rem;
-            line-height: 1.6;
-            padding: 0 24px;
-            box-sizing: border-box;
-        }
-
-        .instructions-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 30px;
-            text-align: center;
-            background: linear-gradient(45deg, var(--accent-color), var(--accent-hover));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .instruction-section {
-            background: var(--surface-color);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .instruction-section h2 {
-            color: var(--accent-color);
-            margin-bottom: 16px;
-            font-size: 1.4rem;
-        }
-
-        .instruction-section p {
-            margin-bottom: 16px;
-        }
-
-        .instruction-section ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .instruction-section li {
-            margin-bottom: 12px;
-            padding-left: 24px;
-            position: relative;
-        }
-
-        .instruction-section li::before {
-            content: '•';
-            color: var(--accent-color);
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-
-        .tip-overlay {
-            position: absolute;
-            background: var(--surface-color);
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--text-color);
-            font-size: 1rem;
-            max-width: 300px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 1003;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .tip-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .tip-overlay::after {
-            content: '';
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: var(--surface-color);
-            transform: rotate(45deg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-top: none;
-            border-left: none;
-        }
-
-        .tip-overlay.top::after {
-            bottom: -7px;
-            left: 50%;
-            margin-left: -6px;
-        }
-
-        .tip-overlay.bottom::after {
-            top: -7px;
-            left: 50%;
-            margin-left: -6px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: none;
-            border-right: none;
-        }
-
-        .tip-content {
-            margin-bottom: 12px;
-        }
-
-        .tip-button {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-
-        .tip-button:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 480px) {
-            .instructions-content {
-                padding: 0 16px;
-            }
-            
-            .instruction-section {
-                padding: 16px;
-            }
-
-            .help-button {
-                bottom: 16px;
-                right: 16px;
-                width: 32px;
-                height: 32px;
-                font-size: 1rem;
-            }
-
-            .close-instructions {
-                width: 32px;
-                height: 32px;
-                font-size: 1.25rem;
-            }
-        }
-
-        .mode-selector {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 2rem;
-            padding: 0 24px;
-        }
-
-        .mode-button {
-            background: rgba(17, 34, 64, 0.6);
-            color: var(--text-color);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(8px);
-            opacity: 0.8;
-            letter-spacing: 0.5px;
-        }
-
-        .mode-button:hover {
-            background: rgba(42, 67, 101, 0.6);
-            transform: translateY(-1px);
-            opacity: 1;
-        }
-
-        .mode-button.active {
-            background: rgba(255, 121, 100, 0.15);
-            color: var(--accent-color);
-            border-color: rgba(255, 121, 100, 0.2);
-            opacity: 1;
-            font-weight: 600;
-        }
-
-        @media (max-width: 480px) {
-            .mode-selector {
-                padding: 0 16px;
-            }
-            
-            .mode-button {
-                padding: 8px 16px;
-                font-size: 0.85rem;
-            }
-        }
-
-        .daily-challenge-info {
-            background: var(--surface-color);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            display: none;
-        }
-
-        .daily-challenge-info.active {
-            display: block;
-        }
-
-        .target-word {
-            font-size: 2rem;
-            font-weight: 800;
-            margin: 12px 0;
-            background: linear-gradient(45deg, var(--accent-color), var(--accent-hover));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .challenge-stats {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-top: 16px;
-            font-size: 0.9rem;
-        }
-
-        .challenge-stats span {
-            color: var(--accent-color);
-            font-weight: 800;
-            margin-left: 4px;
-        }
-
-        .victory-overlay {
+        .rollback-button {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(10, 25, 47, 0.95), rgba(30, 41, 59, 0.95));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .victory-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .victory-content {
-            text-align: center;
-            padding: 40px;
-            max-width: 600px;
-        }
-
-        .victory-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, var(--accent-color), var(--accent-hover));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .victory-stats {
-            font-size: 1.2rem;
-            margin: 20px 0;
-            color: var(--text-color);
-        }
-
-        .victory-buttons {
-            display: flex;
-            gap: 16px;
-            margin-top: 30px;
-        }
-
-        .new-challenge-button {
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
             background: var(--accent-color);
             color: white;
             border: none;
@@ -1067,39 +596,85 @@
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
             font-weight: 600;
-            font-size: 1rem;
+            opacity: 0;
+            pointer-events: none;
             transition: all 0.3s ease;
+            z-index: 1002;
         }
 
-        .new-challenge-button:hover {
-            background: var(--accent-hover);
-            transform: translateY(-2px);
+        .rollback-button.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        .close-victory {
+        .reset-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background: var(--surface-color);
             color: var(--text-color);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+        }
+
+        .reset-button:hover {
+            background: var(--letter-box-hover);
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        @media (max-width: 480px) {
+            .word-chain {
+                max-width: 300px;
+                height: 50vh;
+            }
+            
+            .chain-word {
+                padding: 10px;
+                font-size: 1rem;
+            }
+        }
+
+        .word-chain-view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .word-chain {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: calc(70vh - 180px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .word-chain::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chain-word:last-child::after {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Word Morph</h1>
-
-        <div class="mode-selector">
-            <button class="mode-button active" id="classic-mode">Classic Mode</button>
-            <button class="mode-button" id="daily-mode">Daily Challenge</button>
-        </div>
-
-        <div class="daily-challenge-info" id="daily-challenge-info">
-            <div>Target Word:</div>
-            <div class="target-word" id="target-word">LOADING...</div>
-            <div class="challenge-stats">
-                <div>Current Path: <span id="current-path-length">0</span></div>
-                <div>Best Path: <span id="best-path-length">-</span></div>
-            </div>
-        </div>
 
         <!-- Stats -->
         <div class="stats">
@@ -1165,74 +740,11 @@
 
         <!-- Add this after the game-area div -->
         <div class="word-chain-view">
-            <button class="close-wheel">×</button>
             <div class="chain-view-title">Your Word Chain Journey<br>Click a word to roll back</div>
+            <button class="close-wheel">×</button>
             <div class="word-chain"></div>
-            <div class="chain-buttons">
-                <button class="rollback-button">Roll Back to Selected Word</button>
-                <button class="reset-button">Reset Game</button>
-            </div>
-        </div>
-
-        <!-- Add this right after the container div opens -->
-        <button class="help-button" id="help-button">?</button>
-
-        <!-- Add this before the closing container div -->
-        <div class="instructions-overlay" id="instructions-overlay">
-            <button class="close-instructions">×</button>
-            <div class="instructions-content">
-                <div class="instructions-title">How to Play Word Morph</div>
-                
-                <div class="instruction-section">
-                    <h2>Game Objective</h2>
-                    <p>Create the longest possible chain of valid English words by changing one letter at a time or adding/removing letters. Each word must be a real English word.</p>
-                </div>
-
-                <div class="instruction-section">
-                    <h2>Basic Rules</h2>
-                    <ul>
-                        <li>Click any letter to modify it</li>
-                        <li>Use arrow buttons to add letters before or after the selected position</li>
-                        <li>Use backspace to remove the selected letter</li>
-                        <li>Each word must be a valid English word</li>
-                        <li>You can't use the same word twice</li>
-                    </ul>
-                </div>
-
-                <div class="instruction-section">
-                    <h2>Features</h2>
-                    <ul>
-                        <li>Click "Chain Length" to view your word history</li>
-                        <li>Click "Possible Words" to see hints and statistics</li>
-                        <li>Your progress is automatically saved</li>
-                        <li>Use the Roll Back feature to return to a previous word</li>
-                    </ul>
-                </div>
-
-                <div class="instruction-section">
-                    <h2>Tips</h2>
-                    <ul>
-                        <li>Try adding or removing letters when you're stuck</li>
-                        <li>Look for common word patterns and prefixes/suffixes</li>
-                        <li>Use the definition hints to verify word meanings</li>
-                        <li>Check the possible words count to know if you're on the right track</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="victory-overlay" id="victory-overlay">
-            <div class="victory-content">
-                <div class="victory-title">Challenge Complete!</div>
-                <div class="victory-stats">
-                    You transformed "<span id="victory-start-word"></span>" into "<span id="victory-target-word"></span>"<br>
-                    in <span id="victory-steps"></span> steps!
-                </div>
-                <div class="victory-buttons">
-                    <button class="new-challenge-button" id="new-challenge-button">Try New Challenge</button>
-                    <button class="new-challenge-button close-victory">Continue Playing</button>
-                </div>
-            </div>
+            <button class="rollback-button">Roll Back to Selected Word</button>
+            <button class="reset-button">Reset Game</button>
         </div>
     </div>
 
@@ -1766,230 +1278,6 @@
                 showDefinition('');
                 chainView.classList.remove('active');
             }
-        });
-
-        // Onboarding and Instructions
-        const helpButton = document.getElementById('help-button');
-        const instructionsOverlay = document.getElementById('instructions-overlay');
-        const closeInstructions = document.querySelector('.close-instructions');
-
-        // Show instructions
-        helpButton.addEventListener('click', () => {
-            instructionsOverlay.classList.add('active');
-            helpButton.style.opacity = '0';
-            helpButton.style.pointerEvents = 'none';
-        });
-
-        // Close instructions
-        closeInstructions.addEventListener('click', () => {
-            instructionsOverlay.classList.remove('active');
-            helpButton.style.opacity = '1';
-            helpButton.style.pointerEvents = 'auto';
-        });
-
-        // Daily Challenge System
-        const dailyChallenge = {
-            state: {
-                startWord: "",
-                targetWord: "",
-                currentPath: [],
-                bestPath: [],
-                date: "",
-                isActive: false
-            },
-
-            // Generate a deterministic daily challenge based on the date
-            async generateDailyWords(date, isRandom = false) {
-                try {
-                    // For random challenges, don't use date seed
-                    let seed = isRandom ? Math.random() * 233280 : new Date(date).getTime();
-                    const rng = () => {
-                        seed = (seed * 9301 + 49297) % 233280;
-                        return seed / 233280;
-                    };
-
-                    // Fetch the precomputed words
-                    const response = await fetch('./precomputed_words_aggregated.json');
-                    if (!response.ok) {
-                        console.error('Failed to fetch precomputed words');
-                        return ["HOUSE", "MOUSE"]; // Fallback
-                    }
-
-                    const data = await response.json();
-                    const words = Object.keys(data).filter(word => 
-                        word.length >= 4 && word.length <= 6 && // Filter words by length
-                        data[word].total >= 5 // Ensure the word has enough possible transformations
-                    );
-
-                    // Use seeded random to select words
-                    const startIndex = Math.floor(rng() * words.length);
-                    let startWord = words[startIndex];
-                    
-                    // Find a target word that's different and has a possible path
-                    let attempts = 0;
-                    let targetWord;
-                    do {
-                        const targetIndex = Math.floor(rng() * words.length);
-                        targetWord = words[targetIndex];
-                        attempts++;
-                        
-                        // Prevent infinite loop
-                        if (attempts > 100) {
-                            return ["HOUSE", "MOUSE"]; // Fallback if no suitable pair found
-                        }
-                    } while (
-                        targetWord === startWord || 
-                        Math.abs(targetWord.length - startWord.length) > 2 // Ensure lengths are not too different
-                    );
-
-                    console.log(`Generated ${isRandom ? 'random' : 'daily'} challenge: ${startWord} -> ${targetWord}`);
-                    return [startWord.toUpperCase(), targetWord.toUpperCase()];
-                } catch (error) {
-                    console.error('Error generating words:', error);
-                    return ["HOUSE", "MOUSE"]; // Fallback
-                }
-            },
-
-            async init() {
-                const today = new Date().toISOString().split('T')[0];
-                
-                // Load saved state
-                const savedState = localStorage.getItem('dailyChallengeState');
-                if (savedState) {
-                    const parsed = JSON.parse(savedState);
-                    if (parsed.date === today) {
-                        this.state = parsed;
-                        this.updateUI();
-                        return;
-                    }
-                }
-
-                // Generate new daily challenge
-                const [startWord, targetWord] = await this.generateDailyWords(today);
-                this.state = {
-                    startWord,
-                    targetWord,
-                    currentPath: [startWord],
-                    bestPath: [],
-                    date: today,
-                    isActive: false
-                };
-                this.save();
-                this.updateUI();
-            },
-
-            save() {
-                localStorage.setItem('dailyChallengeState', JSON.stringify(this.state));
-            },
-
-            updateUI() {
-                const targetWordEl = document.getElementById('target-word');
-                const currentPathEl = document.getElementById('current-path-length');
-                const bestPathEl = document.getElementById('best-path-length');
-
-                targetWordEl.textContent = this.state.targetWord;
-                currentPathEl.textContent = Math.max(0, this.state.currentPath.length - 1);
-                bestPathEl.textContent = this.state.bestPath.length ? this.state.bestPath.length - 1 : '-';
-            },
-
-            activate() {
-                this.state.isActive = true;
-                this.save();
-                
-                // Reset game state to start word
-                gameState.currentWord = this.state.startWord.split('');
-                gameState.previousWord = [...gameState.currentWord];
-                gameState.chainLength = 0;
-                gameState.discoveredWords = new Set([this.state.startWord]);
-                
-                updateUI();
-                this.updateUI();
-            },
-
-            deactivate() {
-                this.state.isActive = false;
-                this.save();
-            },
-
-            checkWin() {
-                if (!this.state.isActive) return;
-
-                const currentWord = gameState.currentWord.join('');
-                if (currentWord === this.state.targetWord) {
-                    const pathLength = gameState.discoveredWords.size;
-                    if (!this.state.bestPath.length || pathLength < this.state.bestPath.length) {
-                        this.state.bestPath = Array.from(gameState.discoveredWords);
-                        this.save();
-                        this.updateUI();
-                    }
-                    
-                    // Show victory overlay
-                    const victoryOverlay = document.getElementById('victory-overlay');
-                    document.getElementById('victory-start-word').textContent = this.state.startWord;
-                    document.getElementById('victory-target-word').textContent = this.state.targetWord;
-                    document.getElementById('victory-steps').textContent = pathLength - 1;
-                    victoryOverlay.classList.add('active');
-                    
-                    showMessage(`Congratulations! You've reached the target word in ${pathLength - 1} steps!`);
-                }
-            },
-
-            async generateNewChallenge() {
-                const [startWord, targetWord] = await this.generateDailyWords(new Date().toISOString(), true);
-                this.state.startWord = startWord;
-                this.state.targetWord = targetWord;
-                this.state.currentPath = [startWord];
-                this.state.bestPath = [];
-                this.save();
-                this.activate();
-                document.getElementById('victory-overlay').classList.remove('active');
-                showMessage(`New Challenge: Transform "${startWord}" into "${targetWord}"!`);
-            }
-        };
-
-        // Mode switching
-        const classicModeBtn = document.getElementById('classic-mode');
-        const dailyModeBtn = document.getElementById('daily-mode');
-        const dailyChallengeInfo = document.getElementById('daily-challenge-info');
-
-        classicModeBtn.addEventListener('click', () => {
-            classicModeBtn.classList.add('active');
-            dailyModeBtn.classList.remove('active');
-            dailyChallengeInfo.classList.remove('active');
-            dailyChallenge.deactivate();
-            
-            // Reset to default game
-            gameState = {...defaultGameState};
-            gameState.discoveredWords = new Set(["HOUSE"]);
-            updateUI();
-            showMessage('Classic mode: Create the longest possible word chain!');
-        });
-
-        dailyModeBtn.addEventListener('click', () => {
-            dailyModeBtn.classList.add('active');
-            classicModeBtn.classList.remove('active');
-            dailyChallengeInfo.classList.add('active');
-            dailyChallenge.activate();
-            showMessage(`Daily Challenge: Transform "${dailyChallenge.state.startWord}" into "${dailyChallenge.state.targetWord}"!`);
-        });
-
-        // Initialize daily challenge
-        dailyChallenge.init();
-
-        // Add win condition check to the checkWordValidity function
-        const originalCheckWordValidity = checkWordValidity;
-        checkWordValidity = async function() {
-            await originalCheckWordValidity.apply(this, arguments);
-            dailyChallenge.checkWin();
-        };
-
-        // Add this after the dailyChallenge initialization
-        document.getElementById('new-challenge-button').addEventListener('click', () => {
-            dailyChallenge.generateNewChallenge();
-        });
-
-        document.querySelector('.close-victory').addEventListener('click', () => {
-            document.getElementById('victory-overlay').classList.remove('active');
         });
     </script>
 </body>
