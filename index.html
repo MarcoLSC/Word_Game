@@ -732,11 +732,23 @@
             justify-content: center;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .share-button svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+            fill: currentColor;
         }
 
         .share-button:hover {
             background: var(--letter-box-hover);
             transform: scale(1.05);
+        }
+
+        .share-button:active {
+            transform: scale(0.95);
         }
 
         .share-button.whatsapp:hover {
@@ -761,9 +773,13 @@
             }
             
             .share-button {
-                width: 32px;
-                height: 32px;
-                font-size: 1rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .share-button svg {
+                width: 22px;
+                height: 22px;
             }
         }
 
@@ -1644,7 +1660,7 @@
 
         // Update keyboard event handling
         document.addEventListener('keydown', async function(e) {
-            if (gameState.selectedIndex !== undefined) {
+                if (gameState.selectedIndex !== undefined) {
                 const letterBoxes = document.querySelectorAll('.letter-box');
                 
                 if (e.key === 'ArrowLeft') {
@@ -1667,10 +1683,10 @@
                     return;
                 }
 
-                if (e.key === 'Backspace' || e.key === 'Delete') {
+                    if (e.key === 'Backspace' || e.key === 'Delete') {
                     await handleLetterDeletion(gameState.selectedIndex);
                     unselectCurrentLetter();
-                } else if (/^[A-Za-z]$/.test(e.key)) {
+                    } else if (/^[A-Za-z]$/.test(e.key)) {
                     const letter = e.key.toUpperCase();
                     if (gameState.addMode) {
                         await handleLetterAddition(gameState.selectedIndex, letter, gameState.addMode);
@@ -1679,9 +1695,9 @@
                         await handleLetterModification(gameState.selectedIndex, letter);
                     }
                     unselectCurrentLetter();
+                    }
                 }
-            }
-        });
+            });
 
         // Add this new function to handle letter unselection
         function unselectCurrentLetter() {
@@ -1769,7 +1785,7 @@
             
             // Prevent mobile keyboard from showing
             mobileInput.readOnly = true;
-            
+
             // Handle keyboard hiding on mobile
             window.addEventListener('resize', function() {
                 // Remove focus to prevent keyboard from showing
@@ -2113,6 +2129,8 @@
                     discoveredWords: Array.from(gameState.discoveredWords)
                 }));
                 
+                // Update all UI elements
+                this.updateUI();
                 updateUI();
                 document.getElementById('victory-overlay').classList.remove('active');
                 showMessage(`New Challenge: Transform "${startWord}" into "${targetWord}"!`);
@@ -2184,7 +2202,7 @@
                 
                 message = `🎯 Word Morph Daily Challenge\n\n` +
                          `${startWord} ➔ ${targetWord}\n` +
-                         `${pathLength > 0 ? `Current path: ${pathLength} steps\n` : ''}` +
+                         `Chain length: ${pathLength} steps\n` +
                          `${bestPath > 0 ? `Best path: ${bestPath} steps 🏆\n` : ''}` +
                          `\nCan you find a shorter path? 🤔\n` +
                          `Play at: ${window.location.href}`;
@@ -2204,19 +2222,35 @@
             return encodeURIComponent(message);
         }
 
+        function openShareWindow(url) {
+            const shareWindow = window.open(url, '_blank');
+            
+            // Check if the window was opened successfully
+            if (shareWindow) {
+                // Set up a timer to check if the window is closed
+                const timer = setInterval(() => {
+                    if (shareWindow.closed) {
+                        clearInterval(timer);
+                        // Focus back on our game window
+                        window.focus();
+                    }
+                }, 500);
+            }
+        }
+
         document.getElementById('share-whatsapp').addEventListener('click', () => {
             const message = generateShareMessage();
-            window.open(`https://wa.me/?text=${message}`, '_blank');
+            openShareWindow(`https://wa.me/?text=${message}`);
         });
 
         document.getElementById('share-telegram').addEventListener('click', () => {
             const message = generateShareMessage();
-            window.open(`https://t.me/share/url?url=${window.location.href}&text=${message}`, '_blank');
+            openShareWindow(`https://t.me/share/url?url=${window.location.href}&text=${message}`);
         });
 
         document.getElementById('share-twitter').addEventListener('click', () => {
             const message = generateShareMessage();
-            window.open(`https://twitter.com/intent/tweet?text=${message}`, '_blank');
+            openShareWindow(`https://twitter.com/intent/tweet?text=${message}`);
         });
     </script>
 </body>
