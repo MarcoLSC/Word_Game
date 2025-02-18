@@ -488,18 +488,33 @@
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s ease;
+            transition: opacity 0.3s ease;
             backdrop-filter: blur(10px);
-            padding-top: 40px;
         }
 
         .chain-view-title {
             color: white;
             font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 30px;
+            margin: 40px 0 30px;
             text-align: center;
             line-height: 1.4;
+            padding: 0 20px;
+        }
+
+        .word-chain {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: calc(100vh - 280px); /* Adjusted to account for header and buttons */
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .chain-word {
@@ -524,39 +539,48 @@
             z-index: 2;
         }
 
-        .chain-word::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            bottom: -35px;
-            width: 4px;
-            height: 35px;
-            background: radial-gradient(circle at center,
-                rgba(255, 255, 255, 0.3) 0,
-                rgba(255, 255, 255, 0.3) 2px,
-                transparent 2px,
-                transparent 8px
-            ) repeat-y center;
-            background-size: 4px 8px;
-            transform: translateX(-50%);
+        .chain-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(to top, var(--bg-color) 0%, transparent 100%);
+            gap: 12px;
+        }
+
+        .rollback-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            opacity: 0;
             pointer-events: none;
-            z-index: 1;
+            transition: all 0.3s ease;
+            z-index: 1002;
+            width: 200px;
         }
 
-        .chain-word:hover {
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 
-                0 8px 24px rgba(0, 0, 0, 0.05),
-                inset 0 2px 4px rgba(255, 255, 255, 0.03);
-            background: linear-gradient(135deg, rgba(255, 121, 100, 0.08) 0%, rgba(100, 110, 255, 0.08) 100%);
-        }
-
-        .chain-word.selected {
-            border-color: var(--correct-color);
-            box-shadow: 
-                0 0 30px rgba(34, 197, 94, 0.03),
-                inset 0 2px 4px rgba(255, 255, 255, 0.03);
-            background: linear-gradient(135deg, rgba(255, 121, 100, 0.12) 0%, rgba(100, 110, 255, 0.12) 100%);
+        .reset-button {
+            background: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1002;
+            width: 200px;
         }
 
         .close-wheel {
@@ -576,6 +600,55 @@
             justify-content: center;
             transition: all 0.3s ease;
             z-index: 1001;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .word-chain-view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .word-chain::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chain-word::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -35px;
+            width: 4px;
+            height: 35px;
+            background: radial-gradient(circle at center,
+                rgba(255, 255, 255, 0.3) 0,
+                rgba(255, 255, 255, 0.3) 2px,
+                transparent 2px,
+                transparent 8px
+            ) repeat-y center;
+            background-size: 4px 8px;
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .chain-word:last-child::after {
+            display: none;
+        }
+
+        .chain-word:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 
+                0 8px 24px rgba(0, 0, 0, 0.05),
+                inset 0 2px 4px rgba(255, 255, 255, 0.03);
+            background: linear-gradient(135deg, rgba(255, 121, 100, 0.08) 0%, rgba(100, 110, 255, 0.08) 100%);
+        }
+
+        .chain-word.selected {
+            border-color: var(--correct-color);
+            box-shadow: 
+                0 0 30px rgba(34, 197, 94, 0.03),
+                inset 0 2px 4px rgba(255, 255, 255, 0.03);
+            background: linear-gradient(135deg, rgba(255, 121, 100, 0.12) 0%, rgba(100, 110, 255, 0.12) 100%);
         }
 
         .close-wheel:hover {
@@ -583,11 +656,476 @@
             transform: rotate(90deg);
         }
 
-        .rollback-button {
+        .rollback-button.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .reset-button:hover {
+            background: var(--letter-box-hover);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 480px) {
+            .word-chain {
+                max-width: 300px;
+                height: calc(100vh - 300px);
+            }
+            
+            .chain-word {
+                padding: 12px 16px;
+                font-size: 1rem;
+                width: 100px;
+            }
+
+            .chain-buttons {
+                padding: 16px;
+            }
+
+            .rollback-button,
+            .reset-button {
+                width: 180px;
+                padding: 10px 20px;
+            }
+        }
+
+        .help-button {
             position: fixed;
-            bottom: 70px;
+            bottom: 20px;
+            right: 20px;
+            background: var(--surface-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 998;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 998;
+        }
+
+        .share-button {
+            background: var(--surface-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .share-button:hover {
+            background: var(--letter-box-hover);
+            transform: scale(1.05);
+        }
+
+        .share-button.whatsapp:hover {
+            color: #25D366;
+            border-color: #25D366;
+        }
+
+        .share-button.telegram:hover {
+            color: #0088cc;
+            border-color: #0088cc;
+        }
+
+        .share-button.twitter:hover {
+            color: #1DA1F2;
+            border-color: #1DA1F2;
+        }
+
+        @media (max-width: 480px) {
+            .share-buttons {
+                bottom: 16px;
+                left: 16px;
+            }
+            
+            .share-button {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+        }
+
+        .instructions-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+            padding: 40px 0;
+            overflow-y: auto;
+        }
+
+        .instructions-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .close-instructions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--surface-color);
+            border: none;
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1002;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close-instructions:hover {
+            background: var(--letter-box-hover);
+            transform: rotate(90deg);
+        }
+
+        .instructions-content {
+            max-width: 600px;
+            width: 100%;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            padding: 0 24px;
+            box-sizing: border-box;
+        }
+
+        .instructions-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-hover));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .instruction-section {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .instruction-section h2 {
+            color: var(--accent-color);
+            margin-bottom: 16px;
+            font-size: 1.4rem;
+        }
+
+        .instruction-section p {
+            margin-bottom: 16px;
+        }
+
+        .instruction-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instruction-section li {
+            margin-bottom: 12px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .instruction-section li::before {
+            content: '•';
+            color: var(--accent-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .tip-overlay {
+            position: absolute;
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--text-color);
+            font-size: 1rem;
+            max-width: 300px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1003;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .tip-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tip-overlay::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--surface-color);
+            transform: rotate(45deg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: none;
+            border-left: none;
+        }
+
+        .tip-overlay.top::after {
+            bottom: -7px;
             left: 50%;
-            transform: translateX(-50%);
+            margin-left: -6px;
+        }
+
+        .tip-overlay.bottom::after {
+            top: -7px;
+            left: 50%;
+            margin-left: -6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: none;
+            border-right: none;
+        }
+
+        .tip-content {
+            margin-bottom: 12px;
+        }
+
+        .tip-button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .tip-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 480px) {
+            .instructions-content {
+                padding: 0 16px;
+            }
+            
+            .instruction-section {
+                padding: 16px;
+            }
+
+            .help-button {
+                bottom: 16px;
+                right: 16px;
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .close-instructions {
+                width: 32px;
+                height: 32px;
+                font-size: 1.25rem;
+            }
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 2rem;
+            padding: 0 24px;
+        }
+
+        .mode-button {
+            background: rgba(17, 34, 64, 0.6);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-button:hover {
+            background: rgba(42, 67, 101, 0.6);
+            transform: translateY(-1px);
+            opacity: 1;
+        }
+
+        .mode-button.active {
+            background: rgba(255, 121, 100, 0.15);
+            color: var(--accent-color);
+            border-color: rgba(255, 121, 100, 0.2);
+            opacity: 1;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .mode-selector {
+                padding: 0 16px;
+            }
+            
+            .mode-button {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        .daily-challenge-info {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .daily-challenge-info.active {
+            display: block;
+        }
+
+        .daily-challenge-info .new-challenge-button {
+            margin-top: 16px;
+            background: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .daily-challenge-info .new-challenge-button:hover {
+            background: var(--letter-box-hover);
+            transform: translateY(-2px);
+        }
+
+        .target-word {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 12px 0;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-hover));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .challenge-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+        }
+
+        .challenge-stats span {
+            color: var(--accent-color);
+            font-weight: 800;
+            margin-left: 4px;
+        }
+
+        .victory-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(10, 25, 47, 0.95), rgba(30, 41, 59, 0.95));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .victory-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .victory-content {
+            text-align: center;
+            padding: 40px;
+            max-width: 600px;
+        }
+
+        .victory-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--accent-color), var(--accent-hover));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .victory-stats {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            color: var(--text-color);
+        }
+
+        .victory-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .new-challenge-button {
             background: var(--accent-color);
             color: white;
             border: none;
@@ -596,85 +1134,77 @@
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
             font-weight: 600;
-            opacity: 0;
-            pointer-events: none;
+            font-size: 1rem;
             transition: all 0.3s ease;
-            z-index: 1002;
         }
 
-        .rollback-button.visible {
-            opacity: 1;
-            pointer-events: auto;
+        .new-challenge-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
         }
 
-        .reset-button {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        .close-victory {
             background: var(--surface-color);
             color: var(--text-color);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 1002;
         }
 
-        .reset-button:hover {
+        .refresh-challenge-button {
+            position: fixed;
+            bottom: 20px;
+            right: 68px;
+            background: var(--surface-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 998;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .refresh-challenge-button.active {
+            display: flex;
+        }
+
+        .refresh-challenge-button:hover {
             background: var(--letter-box-hover);
-            transform: translateX(-50%) translateY(-2px);
+            transform: scale(1.05);
         }
 
         @media (max-width: 480px) {
-            .word-chain {
-                max-width: 300px;
-                height: 50vh;
-            }
-            
-            .chain-word {
-                padding: 10px;
+            .refresh-challenge-button {
+                bottom: 16px;
+                right: 56px;
+                width: 32px;
+                height: 32px;
                 font-size: 1rem;
             }
-        }
-
-        .word-chain-view.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .word-chain {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            height: calc(70vh - 180px);
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 20px 0;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .word-chain::-webkit-scrollbar {
-            display: none;
-        }
-
-        .chain-word:last-child::after {
-            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Word Morph</h1>
+
+        <div class="mode-selector">
+            <button class="mode-button active" id="classic-mode">Classic Mode</button>
+            <button class="mode-button" id="daily-mode">Daily Challenge</button>
+        </div>
+
+        <div class="daily-challenge-info" id="daily-challenge-info">
+            <div>Target Word:</div>
+            <div class="target-word" id="target-word">LOADING...</div>
+            <div class="challenge-stats">
+                <div>Best Path: <span id="best-path-length">-</span></div>
+            </div>
+        </div>
 
         <!-- Stats -->
         <div class="stats">
@@ -740,11 +1270,94 @@
 
         <!-- Add this after the game-area div -->
         <div class="word-chain-view">
-            <div class="chain-view-title">Your Word Chain Journey<br>Click a word to roll back</div>
             <button class="close-wheel">×</button>
+            <div class="chain-view-title">Your Word Chain Journey<br>Click a word to roll back</div>
             <div class="word-chain"></div>
-            <button class="rollback-button">Roll Back to Selected Word</button>
-            <button class="reset-button">Reset Game</button>
+            <div class="chain-buttons">
+                <button class="rollback-button">Roll Back to Selected Word</button>
+                <button class="reset-button">Reset Game</button>
+            </div>
+        </div>
+
+        <!-- Add this before the help button -->
+        <div class="share-buttons">
+            <button class="share-button whatsapp" id="share-whatsapp">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                </svg>
+            </button>
+            <button class="share-button telegram" id="share-telegram">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/>
+                </svg>
+            </button>
+            <button class="share-button twitter" id="share-twitter">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Add this after the container div opens -->
+        <button class="help-button" id="help-button">?</button>
+        <button class="refresh-challenge-button" id="refresh-challenge-button">↻</button>
+
+        <!-- Add this before the closing container div -->
+        <div class="instructions-overlay" id="instructions-overlay">
+            <button class="close-instructions">×</button>
+            <div class="instructions-content">
+                <div class="instructions-title">How to Play Word Morph</div>
+                
+                <div class="instruction-section">
+                    <h2>Game Objective</h2>
+                    <p>Create the longest possible chain of valid English words by changing one letter at a time or adding/removing letters. Each word must be a real English word.</p>
+                </div>
+
+                <div class="instruction-section">
+                    <h2>Basic Rules</h2>
+                    <ul>
+                        <li>Click any letter to modify it</li>
+                        <li>Use arrow buttons to add letters before or after the selected position</li>
+                        <li>Use backspace to remove the selected letter</li>
+                        <li>Each word must be a valid English word</li>
+                        <li>You can't use the same word twice</li>
+                    </ul>
+                </div>
+
+                <div class="instruction-section">
+                    <h2>Features</h2>
+                    <ul>
+                        <li>Click "Chain Length" to view your word history</li>
+                        <li>Click "Possible Words" to see hints and statistics</li>
+                        <li>Your progress is automatically saved</li>
+                        <li>Use the Roll Back feature to return to a previous word</li>
+                    </ul>
+                </div>
+
+                <div class="instruction-section">
+                    <h2>Tips</h2>
+                    <ul>
+                        <li>Try adding or removing letters when you're stuck</li>
+                        <li>Look for common word patterns and prefixes/suffixes</li>
+                        <li>Use the definition hints to verify word meanings</li>
+                        <li>Check the possible words count to know if you're on the right track</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="victory-overlay" id="victory-overlay">
+            <div class="victory-content">
+                <div class="victory-title">Challenge Complete!</div>
+                <div class="victory-stats">
+                    You transformed "<span id="victory-start-word"></span>" into "<span id="victory-target-word"></span>"<br>
+                    in <span id="victory-steps"></span> steps!
+                </div>
+                <div class="victory-buttons">
+                    <button class="new-challenge-button" id="new-challenge-button">Try New Challenge</button>
+                    <button class="new-challenge-button close-victory">Continue Playing</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -757,37 +1370,41 @@
             discoveredWords: new Set(["HOUSE"])
         };
 
-        // Load game state from localStorage or use default
-        let gameState;
+        // Separate states for classic and daily modes
+        let classicGameState;
+        let gameState; // This will point to either classicGameState or dailyGameState
+
+        // Load classic game state from localStorage or use default
         try {
-            const savedState = localStorage.getItem('wordMorphGameState');
-            if (savedState) {
-                const parsedState = JSON.parse(savedState);
-                gameState = {
+            const savedClassicState = localStorage.getItem('wordMorphClassicState');
+            if (savedClassicState) {
+                const parsedState = JSON.parse(savedClassicState);
+                classicGameState = {
                     ...parsedState,
-                    // Convert the discoveredWords array back to a Set
                     discoveredWords: new Set(parsedState.discoveredWords)
                 };
-                console.log('Loaded saved game state:', gameState);
+                console.log('Loaded saved classic state:', classicGameState);
             } else {
-                gameState = defaultGameState;
-                console.log('No saved game state found, using default');
+                classicGameState = {...defaultGameState};
+                console.log('No saved classic state found, using default');
             }
+            gameState = classicGameState; // Start with classic mode
         } catch (error) {
-            console.error('Error loading game state:', error);
-            gameState = defaultGameState;
+            console.error('Error loading classic state:', error);
+            classicGameState = {...defaultGameState};
+            gameState = classicGameState;
         }
 
         // Function to save game state
-        function saveGameState() {
+        function saveGameState(isClassicMode = true) {
             try {
                 const stateToSave = {
                     ...gameState,
-                    // Convert Set to Array for JSON serialization
                     discoveredWords: Array.from(gameState.discoveredWords)
                 };
-                localStorage.setItem('wordMorphGameState', JSON.stringify(stateToSave));
-                console.log('Game state saved');
+                const key = isClassicMode ? 'wordMorphClassicState' : 'wordMorphDailyState';
+                localStorage.setItem(key, JSON.stringify(stateToSave));
+                console.log(`Saved ${isClassicMode ? 'classic' : 'daily'} state`);
             } catch (error) {
                 console.error('Error saving game state:', error);
             }
@@ -1272,12 +1889,334 @@
             if (confirm('Are you sure you want to reset the game? This will clear your current progress.')) {
                 gameState = {...defaultGameState};
                 gameState.discoveredWords = new Set(["HOUSE"]);
-                localStorage.removeItem('wordMorphGameState');
+                localStorage.removeItem('wordMorphClassicState');
                 updateUI();
                 showMessage('Game reset! Start a new chain from HOUSE');
                 showDefinition('');
                 chainView.classList.remove('active');
             }
+        });
+
+        // Onboarding and Instructions
+        const helpButton = document.getElementById('help-button');
+        const instructionsOverlay = document.getElementById('instructions-overlay');
+        const closeInstructions = document.querySelector('.close-instructions');
+
+        // Show instructions
+        helpButton.addEventListener('click', () => {
+            instructionsOverlay.classList.add('active');
+            helpButton.style.opacity = '0';
+            helpButton.style.pointerEvents = 'none';
+        });
+
+        // Close instructions
+        closeInstructions.addEventListener('click', () => {
+            instructionsOverlay.classList.remove('active');
+            helpButton.style.opacity = '1';
+            helpButton.style.pointerEvents = 'auto';
+        });
+
+        // Daily Challenge System
+        const dailyChallenge = {
+            state: {
+                startWord: "",
+                targetWord: "",
+                currentPath: [],
+                bestPath: [],
+                date: "",
+                isActive: false
+            },
+
+            // Generate a deterministic daily challenge based on the date
+            async generateDailyWords(date, isRandom = false) {
+                try {
+                    // For random challenges, don't use date seed
+                    let seed = isRandom ? Math.random() * 233280 : new Date(date).getTime();
+                    const rng = () => {
+                        seed = (seed * 9301 + 49297) % 233280;
+                        return seed / 233280;
+                    };
+
+                    // Fetch the precomputed words
+                    const response = await fetch('./precomputed_words_aggregated.json');
+                    if (!response.ok) {
+                        console.error('Failed to fetch precomputed words');
+                        return ["HOUSE", "MOUSE"]; // Fallback
+                    }
+
+                    const data = await response.json();
+                    const words = Object.keys(data).filter(word => 
+                        word.length >= 4 && word.length <= 6 && // Filter words by length
+                        data[word].total >= 5 // Ensure the word has enough possible transformations
+                    );
+
+                    // Use seeded random to select words
+                    const startIndex = Math.floor(rng() * words.length);
+                    let startWord = words[startIndex];
+                    
+                    // Find a target word that's different and has a possible path
+                    let attempts = 0;
+                    let targetWord;
+                    do {
+                        const targetIndex = Math.floor(rng() * words.length);
+                        targetWord = words[targetIndex];
+                        attempts++;
+                        
+                        // Prevent infinite loop
+                        if (attempts > 100) {
+                            return ["HOUSE", "MOUSE"]; // Fallback if no suitable pair found
+                        }
+                    } while (
+                        targetWord === startWord || 
+                        Math.abs(targetWord.length - startWord.length) > 2 // Ensure lengths are not too different
+                    );
+
+                    console.log(`Generated ${isRandom ? 'random' : 'daily'} challenge: ${startWord} -> ${targetWord}`);
+                    return [startWord.toUpperCase(), targetWord.toUpperCase()];
+                } catch (error) {
+                    console.error('Error generating words:', error);
+                    return ["HOUSE", "MOUSE"]; // Fallback
+                }
+            },
+
+            async init() {
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Load saved state
+                const savedState = localStorage.getItem('wordMorphDailyState');
+                if (savedState) {
+                    const parsed = JSON.parse(savedState);
+                    if (parsed.date === today) {
+                        this.state = parsed;
+                        this.updateUI();
+                        return;
+                    }
+                }
+
+                // Generate new daily challenge
+                const [startWord, targetWord] = await this.generateDailyWords(today);
+                this.state = {
+                    startWord,
+                    targetWord,
+                    currentPath: [startWord],
+                    bestPath: [],
+                    date: today,
+                    isActive: false
+                };
+                this.save();
+                this.updateUI();
+            },
+
+            save() {
+                localStorage.setItem('wordMorphDailyState', JSON.stringify(this.state));
+            },
+
+            updateUI() {
+                const targetWordEl = document.getElementById('target-word');
+                const bestPathEl = document.getElementById('best-path-length');
+
+                targetWordEl.textContent = this.state.targetWord;
+                bestPathEl.textContent = this.state.bestPath.length ? this.state.bestPath.length - 1 : '-';
+            },
+
+            activate() {
+                this.state.isActive = true;
+                this.save();
+                
+                // Create or load daily game state
+                let dailyGameState;
+                try {
+                    const savedDailyState = localStorage.getItem('wordMorphDailyGameState');
+                    if (savedDailyState) {
+                        const parsedState = JSON.parse(savedDailyState);
+                        dailyGameState = {
+                            currentWord: parsedState.currentWord,
+                            previousWord: parsedState.previousWord,
+                            chainLength: parsedState.chainLength,
+                            discoveredWords: new Set(parsedState.discoveredWords)
+                        };
+                    } else {
+                        dailyGameState = {
+                            currentWord: this.state.startWord.split(''),
+                            previousWord: this.state.startWord.split(''),
+                            chainLength: 0,
+                            discoveredWords: new Set([this.state.startWord])
+                        };
+                    }
+                } catch (error) {
+                    console.error('Error loading daily state:', error);
+                    dailyGameState = {
+                        currentWord: this.state.startWord.split(''),
+                        previousWord: this.state.startWord.split(''),
+                        chainLength: 0,
+                        discoveredWords: new Set([this.state.startWord])
+                    };
+                }
+                
+                // Switch to daily game state
+                gameState = dailyGameState;
+                updateUI();
+                this.updateUI();
+                showMessage(`Daily Challenge: Transform "${this.state.startWord}" into "${this.state.targetWord}"!`);
+            },
+
+            deactivate() {
+                this.state.isActive = false;
+                this.save();
+            },
+
+            checkWin() {
+                if (!this.state.isActive) return;
+
+                const currentWord = gameState.currentWord.join('');
+                if (currentWord === this.state.targetWord) {
+                    const pathLength = gameState.discoveredWords.size;
+                    if (!this.state.bestPath.length || pathLength < this.state.bestPath.length) {
+                        this.state.bestPath = Array.from(gameState.discoveredWords);
+                        this.save();
+                        this.updateUI();
+                    }
+                    
+                    // Show victory overlay
+                    const victoryOverlay = document.getElementById('victory-overlay');
+                    document.getElementById('victory-start-word').textContent = this.state.startWord;
+                    document.getElementById('victory-target-word').textContent = this.state.targetWord;
+                    document.getElementById('victory-steps').textContent = pathLength - 1;
+                    victoryOverlay.classList.add('active');
+                    
+                    showMessage(`Congratulations! You've reached the target word in ${pathLength - 1} steps!`);
+                }
+            },
+
+            async generateNewChallenge() {
+                const [startWord, targetWord] = await this.generateDailyWords(new Date().toISOString(), true);
+                this.state.startWord = startWord;
+                this.state.targetWord = targetWord;
+                this.state.currentPath = [startWord];
+                this.state.bestPath = [];
+                this.save();
+                
+                // Create new daily game state
+                gameState = {
+                    currentWord: startWord.split(''),
+                    previousWord: startWord.split(''),
+                    chainLength: 0,
+                    discoveredWords: new Set([startWord])
+                };
+                
+                // Save both the challenge state and game state
+                saveGameState(false);
+                localStorage.setItem('wordMorphDailyGameState', JSON.stringify({
+                    currentWord: gameState.currentWord,
+                    previousWord: gameState.previousWord,
+                    chainLength: gameState.chainLength,
+                    discoveredWords: Array.from(gameState.discoveredWords)
+                }));
+                
+                updateUI();
+                document.getElementById('victory-overlay').classList.remove('active');
+                showMessage(`New Challenge: Transform "${startWord}" into "${targetWord}"!`);
+            }
+        };
+
+        // Mode switching
+        const classicModeBtn = document.getElementById('classic-mode');
+        const dailyModeBtn = document.getElementById('daily-mode');
+        const dailyChallengeInfo = document.getElementById('daily-challenge-info');
+
+        dailyModeBtn.addEventListener('click', () => {
+            dailyModeBtn.classList.add('active');
+            classicModeBtn.classList.remove('active');
+            dailyChallengeInfo.classList.add('active');
+            document.getElementById('refresh-challenge-button').classList.add('active');
+            dailyChallenge.activate();
+        });
+
+        classicModeBtn.addEventListener('click', () => {
+            classicModeBtn.classList.add('active');
+            dailyModeBtn.classList.remove('active');
+            dailyChallengeInfo.classList.remove('active');
+            document.getElementById('refresh-challenge-button').classList.remove('active');
+            dailyChallenge.deactivate();
+            
+            // Switch to classic game state
+            gameState = classicGameState;
+            updateUI();
+            showMessage('Classic mode: Create the longest possible word chain!');
+        });
+
+        // Initialize daily challenge
+        dailyChallenge.init();
+
+        // Add win condition check to the checkWordValidity function
+        const originalCheckWordValidity = checkWordValidity;
+        checkWordValidity = async function() {
+            await originalCheckWordValidity.apply(this, arguments);
+            dailyChallenge.checkWin();
+        };
+
+        // Add this after the dailyChallenge initialization
+        document.getElementById('new-challenge-button').addEventListener('click', () => {
+            dailyChallenge.generateNewChallenge();
+        });
+
+        document.querySelector('.close-victory').addEventListener('click', () => {
+            document.getElementById('victory-overlay').classList.remove('active');
+        });
+
+        // Add this after the dailyChallenge initialization
+        document.getElementById('refresh-challenge-button').addEventListener('click', () => {
+            if (confirm('Are you sure you want to start a new challenge? Your current progress will be lost.')) {
+                dailyChallenge.generateNewChallenge();
+            }
+        });
+
+        // Social sharing functionality
+        function generateShareMessage() {
+            const isDailyMode = document.getElementById('daily-mode').classList.contains('active');
+            let message;
+            
+            if (isDailyMode) {
+                const startWord = dailyChallenge.state.startWord;
+                const targetWord = dailyChallenge.state.targetWord;
+                const pathLength = gameState.chainLength;
+                const bestPath = dailyChallenge.state.bestPath.length - 1;
+                
+                message = `🎯 Word Morph Daily Challenge\n\n` +
+                         `${startWord} ➔ ${targetWord}\n` +
+                         `${pathLength > 0 ? `Current path: ${pathLength} steps\n` : ''}` +
+                         `${bestPath > 0 ? `Best path: ${bestPath} steps 🏆\n` : ''}` +
+                         `\nCan you find a shorter path? 🤔\n` +
+                         `Play at: ${window.location.href}`;
+            } else {
+                const chainLength = gameState.chainLength;
+                const words = Array.from(gameState.discoveredWords);
+                const firstWord = words[0];
+                const lastWord = words[words.length - 1];
+                
+                message = `🔠 Word Morph Achievement!\n\n` +
+                         `${firstWord} ➔ ${lastWord}\n` +
+                         `Chain length: ${chainLength} words 🎯\n` +
+                         `\nCan you beat my chain? 🏆\n` +
+                         `Play at: ${window.location.href}`;
+            }
+            
+            return encodeURIComponent(message);
+        }
+
+        document.getElementById('share-whatsapp').addEventListener('click', () => {
+            const message = generateShareMessage();
+            window.open(`https://wa.me/?text=${message}`, '_blank');
+        });
+
+        document.getElementById('share-telegram').addEventListener('click', () => {
+            const message = generateShareMessage();
+            window.open(`https://t.me/share/url?url=${window.location.href}&text=${message}`, '_blank');
+        });
+
+        document.getElementById('share-twitter').addEventListener('click', () => {
+            const message = generateShareMessage();
+            window.open(`https://twitter.com/intent/tweet?text=${message}`, '_blank');
         });
     </script>
 </body>
