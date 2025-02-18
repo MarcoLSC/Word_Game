@@ -2251,7 +2251,8 @@
             if (navigator.share) {
                 shareToNative(message);
             } else {
-                window.location.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                // For WhatsApp, we combine message and URL in the text parameter
+                window.location.href = `whatsapp://send?text=${encodeURIComponent(message)}`;
             }
         });
 
@@ -2260,7 +2261,8 @@
             if (navigator.share) {
                 shareToNative(message);
             } else {
-                window.location.href = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(message)}`;
+                // For Telegram, we use the text parameter for the message
+                window.location.href = `https://t.me/share/url?text=${encodeURIComponent(message)}`;
             }
         });
 
@@ -2269,6 +2271,7 @@
             if (navigator.share) {
                 shareToNative(message);
             } else {
+                // For Twitter, we use the text parameter for the message
                 window.location.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
             }
         });
