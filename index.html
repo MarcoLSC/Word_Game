@@ -1925,14 +1925,11 @@
             }
         });
 
-        document.getElementById('delete').addEventListener('click', function() {
+        document.getElementById('delete').addEventListener('click', async function() {
             if (!gameState.selectedIndex && gameState.selectedIndex !== 0) return;
-            handleLetterDeletion(gameState.selectedIndex);
-            document.querySelector('.dynamic-container').classList.remove('keyboard-active');
-            gameState.selectedIndex = undefined;
-            gameState.addMode = null;
-            document.querySelectorAll('.action-key').forEach(k => k.classList.remove('active'));
-            document.querySelectorAll('.plus-indicator').forEach(el => el.remove());
+            
+            await handleLetterDeletion(gameState.selectedIndex);
+            unselectCurrentLetter();
         });
 
         // Remove the keyboard event listener for arrow keys since we now use buttons
@@ -2411,19 +2408,23 @@
                     updateUI();
                     showMessage('Game reset! Start a new chain from HOUSE');
                 } else {
-                    // Reset daily challenge to its starting word
-                    gameState = {
+                    // Reset daily challenge to its starting word without affecting classic mode
+                    const newDailyState = {
                         currentWord: dailyChallenge.state.startWord.split(''),
                         previousWord: dailyChallenge.state.startWord.split(''),
                         chainLength: 0,
                         discoveredWords: new Set([dailyChallenge.state.startWord])
                     };
+                    
+                    // Update game state for daily mode only
+                    gameState = newDailyState;
+                    
+                    // Save the reset daily state
                     localStorage.setItem('wordMorphDailyGameState', JSON.stringify({
-                        currentWord: gameState.currentWord,
-                        previousWord: gameState.previousWord,
-                        chainLength: gameState.chainLength,
-                        discoveredWords: Array.from(gameState.discoveredWords)
+                        ...newDailyState,
+                        discoveredWords: Array.from(newDailyState.discoveredWords)
                     }));
+                    
                     updateUI();
                     showMessage(`Daily Challenge reset! Start from "${dailyChallenge.state.startWord}" again`);
                 }
