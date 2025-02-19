@@ -2155,15 +2155,26 @@
                     if (parsed.date === today) {
                         this.state = parsed;
                         
-                        // Load saved game state for daily challenge
-                        const savedDailyGameState = localStorage.getItem('wordMorphDailyGameState');
-                        if (savedDailyGameState) {
-                            const parsedGameState = JSON.parse(savedDailyGameState);
-                            gameState = {
-                                ...parsedGameState,
-                                discoveredWords: new Set(parsedGameState.discoveredWords)
-                            };
-                            if (this.state.isActive) {
+                        // Load saved game state for daily challenge if in daily mode
+                        if (dailyModeBtn.classList.contains('active')) {
+                            const savedDailyGameState = localStorage.getItem('wordMorphDailyGameState');
+                            if (savedDailyGameState) {
+                                const parsedGameState = JSON.parse(savedDailyGameState);
+                                gameState = {
+                                    ...parsedGameState,
+                                    discoveredWords: new Set(parsedGameState.discoveredWords)
+                                };
+                                if (this.state.isActive) {
+                                    updateUI();
+                                }
+                            } else {
+                                // Initialize new game state with start word
+                                gameState = {
+                                    currentWord: this.state.startWord.split(''),
+                                    previousWord: this.state.startWord.split(''),
+                                    chainLength: 0,
+                                    discoveredWords: new Set([this.state.startWord])
+                                };
                                 updateUI();
                             }
                         }
@@ -2184,6 +2195,10 @@
                     isActive: false
                 };
                 this.save();
+                
+                // Clear any existing daily game state
+                localStorage.removeItem('wordMorphDailyGameState');
+                
                 this.updateUI();
             },
 
@@ -2338,6 +2353,7 @@
             
             // Save current classic state before switching
             if (gameState) {
+                classicGameState = {...gameState};
                 saveGameState(true);
             }
             
@@ -2363,6 +2379,18 @@
             
             dailyChallenge.deactivate();
             
+            // Load or initialize classic game state
+            const savedClassicState = localStorage.getItem('wordMorphClassicState');
+            if (savedClassicState) {
+                const parsedState = JSON.parse(savedClassicState);
+                classicGameState = {
+                    ...parsedState,
+                    discoveredWords: new Set(parsedState.discoveredWords)
+                };
+            } else if (!classicGameState) {
+                classicGameState = {...defaultGameState};
+            }
+            
             // Switch to classic game state
             gameState = classicGameState;
             updateUI();
@@ -2371,12 +2399,34 @@
 
         // Add reset icon button handler
         resetIconButton.addEventListener('click', () => {
+            const isClassicMode = classicModeBtn.classList.contains('active');
+            
             if (confirm('Are you sure you want to reset the game? This will clear your current progress.')) {
-                gameState = {...defaultGameState};
-                gameState.discoveredWords = new Set(["HOUSE"]);
-                localStorage.removeItem('wordMorphClassicState');
-                updateUI();
-                showMessage('Game reset! Start a new chain from HOUSE');
+                if (isClassicMode) {
+                    // Reset classic mode
+                    gameState = {...defaultGameState};
+                    gameState.discoveredWords = new Set(["HOUSE"]);
+                    classicGameState = gameState;
+                    localStorage.removeItem('wordMorphClassicState');
+                    updateUI();
+                    showMessage('Game reset! Start a new chain from HOUSE');
+                } else {
+                    // Reset daily challenge to its starting word
+                    gameState = {
+                        currentWord: dailyChallenge.state.startWord.split(''),
+                        previousWord: dailyChallenge.state.startWord.split(''),
+                        chainLength: 0,
+                        discoveredWords: new Set([dailyChallenge.state.startWord])
+                    };
+                    localStorage.setItem('wordMorphDailyGameState', JSON.stringify({
+                        currentWord: gameState.currentWord,
+                        previousWord: gameState.previousWord,
+                        chainLength: gameState.chainLength,
+                        discoveredWords: Array.from(gameState.discoveredWords)
+                    }));
+                    updateUI();
+                    showMessage(`Daily Challenge reset! Start from "${dailyChallenge.state.startWord}" again`);
+                }
                 showDefinition('');
             }
         });
@@ -2407,6 +2457,8 @@
         document.getElementById('refresh-challenge-button').addEventListener('click', () => {
             if (confirm('Are you sure you want to start a new challenge? Your current progress will be lost.')) {
                 dailyChallenge.generateNewChallenge();
+                // Clear the daily game state when generating a new challenge
+                localStorage.removeItem('wordMorphDailyGameState');
             }
         });
 
@@ -2418,15 +2470,31 @@
             if (isDailyMode) {
                 const startWord = dailyChallenge.state.startWord;
                 const targetWord = dailyChallenge.state.targetWord;
+                const currentWord = gameState.currentWord.join('');
                 const pathLength = gameState.chainLength;
                 const bestPath = dailyChallenge.state.bestPath.length - 1;
+                const isComplete = currentWord === targetWord;
                 
-                message = `🎯 Word Morph Daily Challenge\n\n` +
-                         `${startWord} ➔ ${targetWord}\n` +
-                         `Chain length: ${pathLength} steps\n` +
-                         `${bestPath > 0 ? `Best path: ${bestPath} steps 🏆\n` : ''}` +
-                         `\nCan you find a shorter path? 🤔\n` +
-                         `Play at: ${window.location.href}`;
+                if (isComplete) {
+                    message = `🎯 Word Morph Daily Challenge - Completed!\n\n` +
+                             `${startWord} ➔ ${targetWord}\n` +
+                             `Solved in ${pathLength} steps ✨\n` +
+                             `${bestPath > 0 ? `Best path: ${bestPath} steps 🏆\n` : ''}` +
+                             `\nCan you find a shorter path? 🤔\n` +
+                             `Play at: ${window.location.href}`;
+                } else {
+                    const progress = currentWord === startWord ? 
+                        `Still at the start word!\n` :
+                        `Current word: ${currentWord}\n`;
+                    
+                    message = `🎯 Word Morph Daily Challenge - In Progress\n\n` +
+                             `Start: ${startWord}\n` +
+                             `Target: ${targetWord}\n` +
+                             progress +
+                             `Steps taken: ${pathLength}\n` +
+                             `\nCan you help me reach the target? 🤔\n` +
+                             `Play at: ${window.location.href}`;
+                }
             } else {
                 const chainLength = gameState.chainLength;
                 const words = Array.from(gameState.discoveredWords);
