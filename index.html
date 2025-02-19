@@ -738,8 +738,8 @@
         }
 
         .share-button svg {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             display: block;
             fill: var(--text-color);
             color: var(--text-color);
@@ -757,16 +757,13 @@
             }
             
             .share-button {
-                width: 40px;
-                height: 40px;
-                background-color: var(--surface-color);
+                width: 32px;
+                height: 32px;
             }
 
             .share-button svg {
-                width: 22px;
-                height: 22px;
-                fill: var(--text-color);
-                color: var(--text-color);
+                width: 20px;
+                height: 20px;
             }
         }
 
@@ -1196,22 +1193,97 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
+        .refresh-challenge-button::after {
+            content: 'New Challenge';
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .refresh-challenge-button:hover::after {
+            opacity: 1;
+        }
+
+        .reset-icon-button {
+            position: fixed;
+            bottom: 20px;
+            right: 68px;
+            background: var(--surface-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 998;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-icon-button::after {
+            content: 'Reset Game';
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .reset-icon-button:hover::after {
+            opacity: 1;
+        }
+
         .refresh-challenge-button.active {
             display: flex;
         }
 
         .refresh-challenge-button:hover {
-            background: var(--letter-box-hover);
+            background: var(--accent-hover);
             transform: scale(1.05);
         }
 
         @media (max-width: 480px) {
-            .refresh-challenge-button {
+            .reset-icon-button {
                 bottom: 16px;
                 right: 56px;
                 width: 32px;
                 height: 32px;
                 font-size: 1rem;
+            }
+            
+            .refresh-challenge-button {
+                bottom: 16px;
+                right: 96px;
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .refresh-challenge-button::after,
+            .reset-icon-button::after {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+                bottom: calc(100% + 6px);
             }
         }
     </style>
@@ -1327,7 +1399,8 @@
 
         <!-- Add this after the container div opens -->
         <button class="help-button" id="help-button">?</button>
-        <button class="refresh-challenge-button" id="refresh-challenge-button">↻</button>
+        <button class="refresh-challenge-button" id="refresh-challenge-button">⟳</button>
+        <button class="reset-icon-button" id="reset-icon-button">⟲</button>
 
         <!-- Add this before the closing container div -->
         <div class="instructions-overlay" id="instructions-overlay">
@@ -2015,6 +2088,20 @@
                     const parsed = JSON.parse(savedState);
                     if (parsed.date === today) {
                         this.state = parsed;
+                        
+                        // Load saved game state for daily challenge
+                        const savedDailyGameState = localStorage.getItem('wordMorphDailyGameState');
+                        if (savedDailyGameState) {
+                            const parsedGameState = JSON.parse(savedDailyGameState);
+                            gameState = {
+                                ...parsedGameState,
+                                discoveredWords: new Set(parsedGameState.discoveredWords)
+                            };
+                            if (this.state.isActive) {
+                                updateUI();
+                            }
+                        }
+                        
                         this.updateUI();
                         return;
                     }
@@ -2057,9 +2144,7 @@
                     if (savedDailyState) {
                         const parsedState = JSON.parse(savedDailyState);
                         dailyGameState = {
-                            currentWord: parsedState.currentWord,
-                            previousWord: parsedState.previousWord,
-                            chainLength: parsedState.chainLength,
+                            ...parsedState,
                             discoveredWords: new Set(parsedState.discoveredWords)
                         };
                     } else {
@@ -2090,6 +2175,16 @@
             deactivate() {
                 this.state.isActive = false;
                 this.save();
+                
+                // Save current daily game state before switching back to classic
+                if (gameState) {
+                    localStorage.setItem('wordMorphDailyGameState', JSON.stringify({
+                        currentWord: gameState.currentWord,
+                        previousWord: gameState.previousWord,
+                        chainLength: gameState.chainLength,
+                        discoveredWords: Array.from(gameState.discoveredWords)
+                    }));
+                }
             },
 
             checkWin() {
@@ -2152,12 +2247,21 @@
         const classicModeBtn = document.getElementById('classic-mode');
         const dailyModeBtn = document.getElementById('daily-mode');
         const dailyChallengeInfo = document.getElementById('daily-challenge-info');
+        const resetIconButton = document.getElementById('reset-icon-button');
+        const refreshChallengeButton = document.getElementById('refresh-challenge-button');
 
         dailyModeBtn.addEventListener('click', () => {
             dailyModeBtn.classList.add('active');
             classicModeBtn.classList.remove('active');
             dailyChallengeInfo.classList.add('active');
-            document.getElementById('refresh-challenge-button').classList.add('active');
+            refreshChallengeButton.classList.add('active');
+            resetIconButton.classList.remove('active');
+            
+            // Save current classic state before switching
+            if (gameState) {
+                saveGameState(true);
+            }
+            
             dailyChallenge.activate();
         });
 
@@ -2165,7 +2269,19 @@
             classicModeBtn.classList.add('active');
             dailyModeBtn.classList.remove('active');
             dailyChallengeInfo.classList.remove('active');
-            document.getElementById('refresh-challenge-button').classList.remove('active');
+            refreshChallengeButton.classList.remove('active');
+            resetIconButton.classList.add('active');
+            
+            // Save current daily state before switching
+            if (gameState) {
+                localStorage.setItem('wordMorphDailyGameState', JSON.stringify({
+                    currentWord: gameState.currentWord,
+                    previousWord: gameState.previousWord,
+                    chainLength: gameState.chainLength,
+                    discoveredWords: Array.from(gameState.discoveredWords)
+                }));
+            }
+            
             dailyChallenge.deactivate();
             
             // Switch to classic game state
@@ -2173,6 +2289,21 @@
             updateUI();
             showMessage('Classic mode: Create the longest possible word chain!');
         });
+
+        // Add reset icon button handler
+        resetIconButton.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset the game? This will clear your current progress.')) {
+                gameState = {...defaultGameState};
+                gameState.discoveredWords = new Set(["HOUSE"]);
+                localStorage.removeItem('wordMorphClassicState');
+                updateUI();
+                showMessage('Game reset! Start a new chain from HOUSE');
+                showDefinition('');
+            }
+        });
+
+        // Initialize reset icon button visibility based on initial mode
+        resetIconButton.classList.add('active');
 
         // Initialize daily challenge
         dailyChallenge.init();
@@ -2266,4 +2397,3 @@
     </script>
 </body>
 </html>
-
