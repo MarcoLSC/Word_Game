@@ -2544,8 +2544,8 @@
         // Add win condition check to the checkWordValidity function
         const originalCheckWordValidity = checkWordValidity;
         checkWordValidity = async function() {
-            await originalCheckWordValidity.apply(this, arguments);
-            
+            const result = await originalCheckWordValidity.apply(this, arguments);
+
             // Update the appropriate game state object based on current mode
             if (currentMode === 'classic') {
                 classicGameState = {...gameState};
@@ -2555,6 +2555,8 @@
                 saveGameState(false);
                 dailyChallenge.checkWin();
             }
+
+            return result;
         };
 
         // Add this after the dailyChallenge initialization
